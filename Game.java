@@ -21,6 +21,44 @@ import javax.swing.ImageIcon;
 import java.util.HashMap;
 import java.util.Map;
 
+enum GameState {
+    TITLE,
+    STAGE,
+    GAME_OVER,
+    GAME_CLEAR,
+    HIGH_SCORE
+}
+
+enum ImageKey {
+    PLAYER,
+    PLAYER_BANG,
+    PLAYER_MISSILE,
+    ENEMY1,
+    ENEMY2,
+    ENEMY3,
+    ENEMY4,
+    ENEMY5,
+    ENEMY6,
+    ENEMY7,
+    ENEMY8,
+    ENEMY9,
+    ENEMY10,
+    ENEMY11,
+    ENEMY_BANG,
+    ENEMY_MISSILE,
+    ITEM1,
+    ITEM2,
+    ITEM3,
+    ITEM4,
+    BOSS1,
+    BOSS2,
+    BOSS3,
+    BOSS4,
+    BOSS5,
+    BOSS6,
+    BOSS_BANG
+}
+
 public class Game extends JFrame {
     private Timer timer;
 
@@ -192,6 +230,8 @@ class Player {
     private int x, y;
     private int speed = 5;
     private int life = 5;
+    private int width;
+    private int height;
 
     public Player(int startX, int startY) {
         this.x = startX;
@@ -240,11 +280,29 @@ class Player {
     }
 
     // 描画処理などその他のメソッド
+
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public void setHeight(int height) {
+        this.height = height;
+    }
+
+    public int getHeight() {
+        return height;
+    }
 }
 
 class Enemy {
     private int x, y;
     private boolean alive = true;
+    private int width;
+    private int height;
 
     public Enemy(int startX, int startY) {
         this.x = startX;
@@ -261,11 +319,29 @@ class Enemy {
     }
 
     // 描画処理などその他のメソッド
+
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public void setHeight(int height) {
+        this.height = height;
+    }
+
+    public int getHeight() {
+        return height;
+    }
 }
 
 class Boss extends Enemy {
     private int x, y;
     private boolean alive = true;
+    private int width;
+    private int height;
 
     public Boss(int startX, int startY) {
         super(startX, startY);
@@ -281,11 +357,29 @@ class Boss extends Enemy {
     }
 
     // 描画処理などその他のメソッド
+
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public void setHeight(int height) {
+        this.height = height;
+    }
+
+    public int getHeight() {
+        return height;
+    }
 }
 class Missile {
     private int x, y;
     private int speed = 10;
     private boolean visible;
+    private int width;
+    private int height;
 
     public Missile(int startX, int startY) {
         this.x = startX;
@@ -331,6 +425,10 @@ class Missile {
 class Item {
     private int x, y;
     private ItemType type; // アイテムの種類を示す列挙型
+    private boolean visible;
+    private int speed = 5;
+    private int width;
+    private int height;
 
     public Item(int x, int y, ItemType type) {
         this.x = x;
@@ -343,6 +441,22 @@ class Item {
     }
 
     // 描画処理などその他のメソッド
+
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public void setHeight(int height) {
+        this.height = height;
+    }
+
+    public int getHeight() {
+        return height;
+    }
 }
 
 // アイテムの種類を表す列挙型
@@ -419,6 +533,13 @@ class ImageLoader {
     }
 
     // 画像の横幅・縦幅を取得するメソッドなど
+    public int getImageWidth(String key) {
+        return images.get(key).getIconWidth();
+    }
+
+    public int getImageHeight(String key) {
+        return images.get(key).getIconHeight();
+    }
 
 }
 
