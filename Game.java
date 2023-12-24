@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import javax.swing.ImageIcon;
 import java.util.HashMap;
 import java.util.Map;
+import javax.swing.JPanel;
 
 enum GameState {
     TITLE,
@@ -59,6 +60,11 @@ enum ImageKey {
     BOSS_BANG
 }
 
+class Constants {
+    public static final int SCREEN_WIDTH = 1024;
+    public static final int SCREEN_HEIGHT = 768;
+}
+
 public class Game extends JFrame {
     private Timer timer;
 
@@ -67,8 +73,8 @@ public class Game extends JFrame {
     }
 
     private void initUI() {
-        setTitle("Shooting Game");
-        setSize(1024, 768);
+        setTitle("Akari Shooting Game");
+        setSize(Constants.SCREEN_WIDTH, Constants.SCREEN_HEIGHT);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);  // ウィンドウを画面中央に配置
 
@@ -91,9 +97,30 @@ public class Game extends JFrame {
             ex.setVisible(true);
         });
     }
+
+    // 画面の切り替え
+    public void setScreen(Screen screen) {
+        // 現在表示している画面を破棄
+        getContentPane().removeAll();
+
+        // 新しい画面を設定
+        getContentPane().add(screen);
+
+        // 新しい画面の初期化処理
+        screen.init();
+
+        // 画面の再描画
+        repaint();
+    }
+
+    // 画面の再描画
+    public void repaint() {
+        // 画面の再描画処理
+    }
+
 }
 
-abstract class Screen {
+abstract class Screen extends JPanel {
     protected Game game;
 
     public Screen(Game game) {
@@ -102,6 +129,10 @@ abstract class Screen {
 
     public abstract void update(); // 画面の更新
     public abstract void render(); // 画面の描画
+
+    public void init() {
+        // 画面の初期化処理
+    }
 }
 class TitleScreen extends Screen {
     public TitleScreen(Game game) {
@@ -126,10 +157,29 @@ class StageScreen extends Screen {
 
     public StageScreen(Game game) {
         super(game);
-        player = new Player(0, 0);
         scoreManager = new ScoreManager();
         imageLoader = new ImageLoader();
         inputHandler = new InputHandler();
+        player = new Player(Constants.SCREEN_WIDTH / 2, Constants.SCREEN_HEIGHT - imageLoader.getImageHeight("player") - 10);
+        player.setWidth(imageLoader.getImageWidth("player"));
+        player.setHeight(imageLoader.getImageHeight("player"));
+        game.addKeyListener(inputHandler);
+
+        // 敵機の初期化
+        for (int i = 0; i < 7; i++) {
+            for (int j = 0; j < 3; j++) {
+                Enemy enemy = new Enemy(100 + i * 100, 100 + j * 100);
+                enemy.setWidth(imageLoader.getImageWidth("enemy1"));
+                enemy.setHeight(imageLoader.getImageHeight("enemy1"));
+                enemies.add(enemy);
+            }
+        }
+
+        // ボス機の初期化
+        // boss = new Boss(Constants.SCREEN_WIDTH / 2, 100);
+
+        // アイテムの初期化
+        // Item item = new Item(100, 100, ItemType.SCORE_UP);
     }
     public void update() {
         // ゲームの状態を更新
@@ -192,11 +242,44 @@ class StageScreen extends Screen {
             }
         });
 
+        // 敵機が画面外に出たかどうかの判定
+        enemies.removeIf(enemy -> enemy.getY() > Constants.SCREEN_HEIGHT);
+
+        // ボス機が画面外に出たかどうかの判定
+        if (boss != null && boss.getY() > Constants.SCREEN_HEIGHT) {
+            boss = null;
+        }
+
+        // アイテムが画面外に出たかどうかの判定
+        items.removeIf(item -> item.getY() > Constants.SCREEN_HEIGHT);
+
+        // 敵機が全滅したかどうかの判定
+        if (enemies.isEmpty()) {
+            // ボス機の出現
+            boss = new Boss(Constants.SCREEN_WIDTH / 2, 100);
+        }
+
+        // 自機がやられたかどうかの判定
+        if (player.getLife() <= 0) {
+            // ゲームオーバー画面へ
+            game.setScreen(new GameOverScreen(game));
+        }
+
+        // ボス機がやられたかどうかの判定
+        if (boss != null && !boss.isAlive()) {
+            // ゲームクリア画面へ
+            game.setScreen(new GameClearScreen(game));
+        }
+
         // 他のオブジェクトの更新処理
     }
     public void render() {
-        // ゲームの状態を描画
-        // 画面の描画処理
+        // 画面の描画
+        game.repaint();
+
+        // スコアの更新
+        scoreManager.addScore(1);
+        scoreManager.checkHighScore();
     }
 }
 class GameOverScreen extends Screen {
@@ -296,6 +379,26 @@ class Player {
     public int getHeight() {
         return height;
     }
+
+    // getLife
+    public int getLife() {
+        return life;
+    }
+
+    // isAlive
+    public boolean isAlive() {
+        return life > 0;
+    }
+
+    // getSpeed
+    public int getSpeed() {
+        return speed;
+    }
+
+    // setSpeed
+    public void setSpeed(int speed) {
+        this.speed = speed;
+    }
 }
 
 class Enemy {
@@ -334,6 +437,26 @@ class Enemy {
 
     public int getHeight() {
         return height;
+    }
+
+    // isAlive
+    public boolean isAlive() {
+        return alive;
+    }
+
+    // getX
+    public int getX() {
+        return x;
+    }
+
+    // getY
+    public int getY() {
+        return y;
+    }
+
+    // isVisible
+    public boolean isVisible() {
+        return true;
     }
 }
 
@@ -456,6 +579,21 @@ class Item {
 
     public int getHeight() {
         return height;
+    }
+
+    // getX
+    public int getX() {
+        return x;
+    }
+
+    // getY
+    public int getY() {
+        return y;
+    }
+
+    // isVisible
+    public boolean isVisible() {
+        return visible;
     }
 }
 
