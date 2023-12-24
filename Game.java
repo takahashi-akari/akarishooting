@@ -116,6 +116,12 @@ public class Game extends JFrame {
     // 画面の再描画
     public void repaint() {
         // 画面の再描画処理
+        // 自機や敵機、ミサイルなどのオブジェクトを描画
+
+        // スコアや残り自機数などの情報を描画
+
+        // 画面の描画処理
+
     }
 
 }
@@ -161,16 +167,16 @@ class StageScreen extends Screen {
         imageLoader = new ImageLoader();
         inputHandler = new InputHandler();
         player = new Player(Constants.SCREEN_WIDTH / 2, Constants.SCREEN_HEIGHT - imageLoader.getImageHeight("player") - 10);
-        player.setWidth(imageLoader.getImageWidth("player"));
-        player.setHeight(imageLoader.getImageHeight("player"));
+        player.setWidth(imageLoader.getImageWidth(ImageKey.PLAYER));
+        player.setHeight(imageLoader.getImageHeight(ImageKey.PLAYER));
         game.addKeyListener(inputHandler);
 
         // 敵機の初期化
         for (int i = 0; i < 7; i++) {
             for (int j = 0; j < 3; j++) {
                 Enemy enemy = new Enemy(100 + i * 100, 100 + j * 100);
-                enemy.setWidth(imageLoader.getImageWidth("enemy1"));
-                enemy.setHeight(imageLoader.getImageHeight("enemy1"));
+                enemy.setWidth(imageLoader.getImageWidth(ImageKey.ENEMY1));
+                enemy.setHeight(imageLoader.getImageHeight(ImageKey.ENEMY1));
                 enemies.add(enemy);
             }
         }
@@ -629,7 +635,7 @@ class ScoreManager {
 }
 
 class ImageLoader {
-    private Map<String, ImageIcon> images = new HashMap<>();
+    private Map<ImageKey, ImageIcon> images = new HashMap<>();
 
     public ImageLoader() {
         // 画像の読み込み
@@ -637,45 +643,51 @@ class ImageLoader {
     }
 
     private void loadImages() {
-        images.put("player", new ImageIcon("./images/player.png"));
-        images.put("player_bang", new ImageIcon("./images/player_bang.png"));
-        images.put("player_missile", new ImageIcon("./images/player_missile.png"));
-        images.put("enemy1", new ImageIcon("./images/enemy1.png"));
-        images.put("enemy2", new ImageIcon("./images/enemy2.png"));
-        images.put("enemy3", new ImageIcon("./images/enemy3.png"));
-        images.put("enemy4", new ImageIcon("./images/enemy4.png"));
-        images.put("enemy5", new ImageIcon("./images/enemy5.png"));
-        images.put("enemy6", new ImageIcon("./images/enemy6.png"));
-        images.put("enemy7", new ImageIcon("./images/enemy7.png"));
-        images.put("enemy8", new ImageIcon("./images/enemy8.png"));
-        images.put("enemy9", new ImageIcon("./images/enemy9.png"));
-        images.put("enemy10", new ImageIcon("./images/enemy10.png"));
-        images.put("enemy11", new ImageIcon("./images/enemy11.png"));
-        images.put("enemy_bang", new ImageIcon("./images/enemy_bang.png"));
-        images.put("enemy_missile", new ImageIcon("./images/enemy_missile.png"));
-        images.put("item1", new ImageIcon("./images/item1.png"));
-        images.put("item2", new ImageIcon("./images/item2.png"));
-        images.put("item3", new ImageIcon("./images/item3.png"));
-        images.put("item4", new ImageIcon("./images/item4.png"));
-        images.put("boss1", new ImageIcon("./images/boss1.png"));
-        images.put("boss2", new ImageIcon("./images/boss2.png"));
-        images.put("boss3", new ImageIcon("./images/boss3.png"));
-        images.put("boss4", new ImageIcon("./images/boss4.png"));
-        images.put("boss5", new ImageIcon("./images/boss5.png"));
-        images.put("boss6", new ImageIcon("./images/boss6.png"));
-        images.put("boss_bang", new ImageIcon("./images/boss_bang.png"));
+        images.put(ImageKey.PLAYER, new ImageIcon("./images/player.png"));
+        images.put(ImageKey.PLAYER_BANG, new ImageIcon("./images/player_bang.png"));
+        images.put(ImageKey.PLAYER_MISSILE, new ImageIcon("./images/player_missile.png"));
+        images.put(ImageKey.ENEMY1, new ImageIcon("./images/enemy1.png"));
+        images.put(ImageKey.ENEMY2, new ImageIcon("./images/enemy2.png"));
+        images.put(ImageKey.ENEMY3, new ImageIcon("./images/enemy3.png"));
+        images.put(ImageKey.ENEMY4, new ImageIcon("./images/enemy4.png"));
+        images.put(ImageKey.ENEMY5, new ImageIcon("./images/enemy5.png"));
+        images.put(ImageKey.ENEMY6, new ImageIcon("./images/enemy6.png"));
+        images.put(ImageKey.ENEMY7, new ImageIcon("./images/enemy7.png"));
+        images.put(ImageKey.ENEMY8, new ImageIcon("./images/enemy8.png"));
+        images.put(ImageKey.ENEMY9, new ImageIcon("./images/enemy9.png"));
+        images.put(ImageKey.ENEMY10, new ImageIcon("./images/enemy10.png"));
+        images.put(ImageKey.ENEMY11, new ImageIcon("./images/enemy11.png"));
+        images.put(ImageKey.ENEMY_BANG, new ImageIcon("./images/enemy_bang.png"));
+        images.put(ImageKey.ENEMY_MISSILE, new ImageIcon("./images/enemy_missile.png"));
+        images.put(ImageKey.ITEM1, new ImageIcon("./images/item1.png"));
+        images.put(ImageKey.ITEM2, new ImageIcon("./images/item2.png"));
+        images.put(ImageKey.ITEM3, new ImageIcon("./images/item3.png"));
+        images.put(ImageKey.ITEM4, new ImageIcon("./images/item4.png"));
+        images.put(ImageKey.BOSS1, new ImageIcon("./images/boss1.png"));
+        images.put(ImageKey.BOSS2, new ImageIcon("./images/boss2.png"));
+        images.put(ImageKey.BOSS3, new ImageIcon("./images/boss3.png"));
+        images.put(ImageKey.BOSS4, new ImageIcon("./images/boss4.png"));
+        images.put(ImageKey.BOSS5, new ImageIcon("./images/boss5.png"));
+        images.put(ImageKey.BOSS6, new ImageIcon("./images/boss6.png"));
+        images.put(ImageKey.BOSS_BANG, new ImageIcon("./images/boss_bang.png"));
+
+        // imagesの画像を全て1/2に縮小
+        for (ImageKey key : images.keySet()) {
+            ImageIcon icon = images.get(key);
+            images.put(key, new ImageIcon(icon.getImage().getScaledInstance(icon.getIconWidth() / 2, icon.getIconHeight() / 2, java.awt.Image.SCALE_SMOOTH)));
+        }
     }
 
-    public ImageIcon getImage(String key) {
+    public ImageIcon getImage(ImageKey key) {
         return images.get(key);
     }
 
     // 画像の横幅・縦幅を取得するメソッドなど
-    public int getImageWidth(String key) {
+    public int getImageWidth(ImageKey key) {
         return images.get(key).getIconWidth();
     }
 
-    public int getImageHeight(String key) {
+    public int getImageHeight(ImageKey key) {
         return images.get(key).getIconHeight();
     }
 
