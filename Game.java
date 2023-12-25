@@ -324,7 +324,7 @@ class StageScreen extends Screen {
         enemies.forEach(enemy -> {
             // 左端と右端に到達したら下に移動、左右の移動方向を反転
             if (enemy.getX() < 0 || enemy.getX() > Constants.SCREEN_WIDTH - enemy.getWidth()) {
-                enemy.setY(enemy.getY() + 10);
+                enemy.setY(enemy.getY() + 20);
                 enemy.setSpeed(-enemy.getSpeed());
             }
             enemy.setX(enemy.getX() + enemy.getSpeed());
@@ -380,8 +380,8 @@ class StageScreen extends Screen {
         // 自機が敵機に当たったかどうかの判定
         enemies.forEach(enemy -> {
             if (player.collidesWith(enemy)) {
+                player.setLife(1);
                 player.hit();
-                enemy.hit();
             }
         });
 
@@ -405,7 +405,7 @@ class StageScreen extends Screen {
         // 敵機が全滅したかどうかの判定
         if (enemies.isEmpty()) {
             // ボス機の出現
-            boss = new Boss(Constants.SCREEN_WIDTH / 2, 100);
+            // boss = new Boss(Constants.SCREEN_WIDTH / 2, 100);
         }
 
         // 自機がやられたかどうかの判定
