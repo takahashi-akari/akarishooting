@@ -256,7 +256,7 @@ class StageScreen extends Screen {
         // 衝突判定
         missiles.forEach(missile -> {
             enemies.forEach(enemy -> {
-                if (missile.collidesWith(enemy)) {
+                if (enemy.isAlive() && missile.collidesWith(enemy)) {
                     missile.hit();
                     enemy.hit();
                 }
@@ -328,8 +328,14 @@ class StageScreen extends Screen {
 
         // 敵機の描画
         enemies.forEach(enemy -> {
-            Image enemyImage = ((ImageIcon) imageLoader.getImage(ImageKey.ENEMY1)).getImage();
-            game.getGraphics().drawImage(enemyImage, enemy.getX(), enemy.getY(), this);
+            if (enemy.isAlive()) {
+                Image enemyImage = ((ImageIcon) imageLoader.getImage(ImageKey.ENEMY1)).getImage();
+                game.getGraphics().drawImage(enemyImage, enemy.getX(), enemy.getY(), this);
+            } else if(enemy.getBang() > 0) {
+                Image enemyBangImage = ((ImageIcon) imageLoader.getImage(ImageKey.ENEMY_BANG)).getImage();
+                game.getGraphics().drawImage(enemyBangImage, enemy.getX(), enemy.getY(), this);
+                enemy.setBang(enemy.getBang() - 1);
+            }
         });
 
         // ボス機の描画
@@ -342,6 +348,9 @@ class StageScreen extends Screen {
 
         // ミサイルの描画
         missiles.forEach(missile -> {
+            if(!missile.isVisible()) {
+                return;
+            }
             Image missileImage = ((ImageIcon) imageLoader.getImage(ImageKey.PLAYER_MISSILE)).getImage();
             game.getGraphics().drawImage(missileImage, missile.getX() + playerImage.getWidth(this) / 2 - missileImage.getWidth(this) / 2, missile.getY(), this);
         });
@@ -490,6 +499,8 @@ class Enemy {
     private int width;
     private int height;
     private int speed = 5;
+    // bang
+    private int bang = 0;
 
     public Enemy(int startX, int startY) {
         this.x = startX;
@@ -504,6 +515,7 @@ class Enemy {
     public void hit() {
         // 敵機が攻撃を受けた時の処理
         alive = false;
+        bang = 50;
     }
 
     // 描画処理などその他のメソッド
@@ -562,6 +574,15 @@ class Enemy {
     // setSpeed
     public void setSpeed(int speed) {
         this.speed = speed;
+    }
+
+    // bang
+    public int getBang() {
+        return bang;
+    }
+
+    public void setBang(int bang) {
+        this.bang = bang;
     }
 }
 
