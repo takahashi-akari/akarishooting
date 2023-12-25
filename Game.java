@@ -323,6 +323,9 @@ class StageScreen extends Screen {
         // このメソッド内で敵機の動きのロジックを実装、enemy.moveは使わない
         enemies.forEach(enemy -> {
             // 左端と右端に到達したら下に移動、左右の移動方向を反転
+            if (enemy.getBang() > 0) {
+                return;
+            }
             if (enemy.getX() < 0 || enemy.getX() > Constants.SCREEN_WIDTH - enemy.getWidth()) {
                 enemy.setY(enemy.getY() + 20);
                 enemy.setSpeed(-enemy.getSpeed());
@@ -402,10 +405,13 @@ class StageScreen extends Screen {
         // アイテムが画面外に出たかどうかの判定
         items.removeIf(item -> item.getY() > Constants.SCREEN_HEIGHT);
 
+        // enemiesのisAliveがfalseのものを削除
+        enemies.removeIf(enemy -> !enemy.isAlive() && enemy.getBang() == 0);
+
         // 敵機が全滅したかどうかの判定
         if (enemies.isEmpty()) {
             // ボス機の出現
-            // boss = new Boss(Constants.SCREEN_WIDTH / 2, 100);
+            boss = new Boss(Constants.SCREEN_WIDTH / 2, 100, ImageKey.BOSS1);
         }
 
         // 自機がやられたかどうかの判定
@@ -417,7 +423,7 @@ class StageScreen extends Screen {
         // ボス機がやられたかどうかの判定
         if (boss != null && !boss.isAlive()) {
             // ゲームクリア画面へ
-            game.setScreen(new GameClearScreen(game));
+            // game.setScreen(new GameClearScreen(game));
         }
 
         // アイテムが自機に当たったかどうかの判定
@@ -481,12 +487,10 @@ class StageScreen extends Screen {
         });
 
         // ボス機の描画
-        /*
         if (boss != null) {
-            Image bossImage = ((ImageIcon) imageLoader.getImage(ImageKey.BOSS1)).getImage();
+            Image bossImage = ((ImageIcon) imageLoader.getImage(boss.getKey())).getImage();
             g.drawImage(bossImage, boss.getX(), boss.getY(), this);
         }
-        */
 
         // ミサイルの描画
         missiles.forEach(missile -> {
@@ -677,6 +681,7 @@ class Player {
     }
 
     public void setLife(int i) {
+        life = i;
     }
 
     // bang
@@ -846,19 +851,27 @@ class Boss extends Enemy {
     private boolean alive = true;
     private int width;
     private int height;
+    private int speed = 5;
+    // bang
+    private int bang = 0;
     ImageKey key;
 
-    public Boss(int startX, int startY) {
-        super(startX, startY, ImageKey.BOSS1);
+    public Boss(int startX, int startY, ImageKey key) {
+        super(startX, startY, key);
+        this.x = startX;
+        this.y = startY;
+        this.key = key;
     }
 
     public void move() {
-        // ボス機の動きのロジック
+        // 敵機の動きのロジック
+
     }
 
     public void hit() {
-        // ボス機が攻撃を受けた時の処理
+        // 敵機が攻撃を受けた時の処理
         alive = false;
+        bang = 50;
     }
 
     // 描画処理などその他のメソッド
@@ -877,6 +890,60 @@ class Boss extends Enemy {
 
     public int getHeight() {
         return height;
+    }
+
+    // isAlive
+    public boolean isAlive() {
+        return alive;
+    }
+
+    // getX
+    public int getX() {
+        return x;
+    }
+
+    // setX
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    // getY
+    public int getY() {
+        return y;
+    }
+
+    // setY
+    public void setY(int y) {
+        this.y = y;
+    }
+
+    // isVisible
+    public boolean isVisible() {
+        return true;
+    }
+
+    // getSpeed
+    public int getSpeed() {
+        return speed;
+    }
+
+    // setSpeed
+    public void setSpeed(int speed) {
+        this.speed = speed;
+    }
+
+    // bang
+    public int getBang() {
+        return bang;
+    }
+
+    public void setBang(int bang) {
+        this.bang = bang;
+    }
+
+    // key
+    public ImageKey getKey() {
+        return key;
     }
 }
 class Missile {
