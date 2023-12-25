@@ -1,4 +1,6 @@
 # Akari Shooting Game
+# 現在開発中です。 Now under development.
+
 
 ## Description
 This is a simple shooting game written in Java.
