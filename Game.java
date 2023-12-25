@@ -209,7 +209,7 @@ class StageScreen extends Screen {
         }
 
         // アイテムをランダムに生成
-        if (Math.random() < 0.0001) {
+        if (Math.random() < 0.006) {
             int x = (int) (Math.random() * Constants.SCREEN_WIDTH);
             int type = (int) (Math.random() * 4);
             ImageKey key = null;
