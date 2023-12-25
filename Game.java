@@ -168,6 +168,7 @@ class StageScreen extends Screen {
     ScoreManager scoreManager;
     ImageLoader imageLoader;
     InputHandler inputHandler;
+    List<EnemyMissile> enemyMissiles = new ArrayList<>();
 
     public StageScreen(Game game) {
         super(game);
@@ -222,6 +223,29 @@ class StageScreen extends Screen {
                 enemy.setSpeed(-enemy.getSpeed());
             }
             enemy.setX(enemy.getX() + enemy.getSpeed());
+        });
+
+        // 敵機のミサイルの発射
+        // このメソッド内で敵機のミサイルの発射のロジックを実装
+        enemies.forEach(enemy -> {
+            // 一定の確率でミサイルを発射
+            if (Math.random() < 0.001) {
+                enemyMissiles.add(new EnemyMissile(enemy.getX() + imageLoader.getImageWidth(ImageKey.ENEMY1) / 2, enemy.getY() + imageLoader.getImageHeight(ImageKey.ENEMY1)));
+            }
+        });
+
+        // 画面外に出た敵機のミサイルを削除
+        enemyMissiles.removeIf(missile -> !missile.isVisible());
+
+        // 敵機のミサイルの移動
+        enemyMissiles.forEach(EnemyMissile::move);
+
+        // 敵機のミサイルと自機の当たり判定
+        enemyMissiles.forEach(missile -> {
+            if (missile.collidesWith(player)) {
+                missile.hit();
+                player.hit();
+            }
         });
 
         // ボス機の移動
@@ -320,6 +344,12 @@ class StageScreen extends Screen {
         missiles.forEach(missile -> {
             Image missileImage = ((ImageIcon) imageLoader.getImage(ImageKey.PLAYER_MISSILE)).getImage();
             game.getGraphics().drawImage(missileImage, missile.getX() + playerImage.getWidth(this) / 2 - missileImage.getWidth(this) / 2, missile.getY(), this);
+        });
+
+        // 敵機のミサイルの描画
+        enemyMissiles.forEach(missile -> {
+            Image missileImage = ((ImageIcon) imageLoader.getImage(ImageKey.ENEMY_MISSILE)).getImage();
+            game.getGraphics().drawImage(missileImage, missile.getX(), missile.getY(), this);
         });
 
         // アイテムの描画
@@ -535,6 +565,58 @@ class Enemy {
     }
 }
 
+class EnemyMissile {
+    private int x, y;
+    private int speed = 3;
+    private boolean visible;
+    private int width;
+    private int height;
+
+    public EnemyMissile(int startX, int startY) {
+        this.x = startX;
+        this.y = startY;
+        this.visible = true;
+    }
+
+    public void move() {
+        y += speed;
+        if (y > Constants.SCREEN_HEIGHT) {
+            visible = false;
+        }
+    }
+
+    public void hit() {
+        // ミサイルが攻撃を受けた時の処理
+        visible = false;
+    }
+
+    // getX
+    public int getX() {
+        return x;
+    }
+
+    // getY
+    public int getY() {
+        return y;
+    }
+
+    // isVisible
+    public boolean isVisible() {
+        return visible;
+    }
+
+    // collidesWith
+    public boolean collidesWith(Player player) {
+        // ミサイルと自機の当たり判定
+        if (x < player.getX() + player.getWidth() && x + width > player.getX() && y < player.getY() + player.getHeight() && y + height > player.getY()) {
+            return true;
+        }
+        return false;
+    }
+
+    // 描画処理などその他のメソッド
+}
+
 class Boss extends Enemy {
     private int x, y;
     private boolean alive = true;
@@ -615,6 +697,9 @@ class Missile {
     // collidesWith
     public boolean collidesWith(Enemy enemy) {
         // ミサイルと敵機の当たり判定
+        if(x < enemy.getX() + enemy.getWidth() && x + width > enemy.getX() && y < enemy.getY() + enemy.getHeight() && y + height > enemy.getY()) {
+            return true;
+        }
         return false;
     }
 
@@ -751,6 +836,10 @@ class ImageLoader {
 
         // imagesの画像を全て1/2に縮小
         for (ImageKey key : images.keySet()) {
+            // ImageKey.ENEMY_MISSILEとImageKey.PLAYER_MISSILEは縮小しない
+            if (key == ImageKey.ENEMY_MISSILE || key == ImageKey.PLAYER_MISSILE) {
+                continue;
+            }
             ImageIcon icon = images.get(key);
             images.put(key, new ImageIcon(icon.getImage().getScaledInstance(icon.getIconWidth() / 2, icon.getIconHeight() / 2, java.awt.Image.SCALE_SMOOTH)));
         }
