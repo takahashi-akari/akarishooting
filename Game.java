@@ -208,6 +208,36 @@ class StageScreen extends Screen {
             missiles.add(new Missile(player.getX(), player.getY()));
         }
 
+        // アイテムをランダムに生成
+        if (Math.random() < 0.0001) {
+            int x = (int) (Math.random() * Constants.SCREEN_WIDTH);
+            int type = (int) (Math.random() * 4);
+            ImageKey key = null;
+            switch(type) {
+                case 0:
+                    type = ItemType.SCORE_UP.ordinal();
+                    key = ImageKey.ITEM1;
+                    break;
+                case 1:
+                    type = ItemType.LIFE_UP.ordinal();
+                    key = ImageKey.ITEM2;
+                    break;
+                case 2:
+                    type = ItemType.SPEED_UP.ordinal();
+                    key = ImageKey.ITEM3;
+                    break;
+                case 3:
+                    type = ItemType.MISSILE_UPGRADE.ordinal();
+                    key = ImageKey.ITEM4;
+                    break;
+            }
+            int y = -imageLoader.getImageHeight(key);
+            items.add(new Item(x, y, ItemType.values()[type]));
+        }
+
+        // アイテムを上から下に移動
+        items.forEach(item -> item.setY(item.getY() + item.getSpeed()));
+
         // 画面外に出たミサイルを削除
         missiles.removeIf(missile -> !missile.isVisible());
 
@@ -285,6 +315,7 @@ class StageScreen extends Screen {
         items.forEach(item -> {
             if (player.collidesWith(item)) {
                 item.applyEffect(player);
+                item.setAlive(false);
             }
         });
 
@@ -362,12 +393,28 @@ class StageScreen extends Screen {
         });
 
         // アイテムの描画
-        /*
         items.forEach(item -> {
-            Image itemImage = ((ImageIcon) imageLoader.getImage(ImageKey.ITEM1)).getImage();
+            if (!item.isAlive()) {
+                return;
+            }
+            ImageKey key = null;
+            switch(item.getType()) {
+                case SCORE_UP:
+                    key = ImageKey.ITEM1;
+                    break;
+                case LIFE_UP:
+                    key = ImageKey.ITEM2;
+                    break;
+                case SPEED_UP:
+                    key = ImageKey.ITEM3;
+                    break;
+                case MISSILE_UPGRADE:
+                    key = ImageKey.ITEM4;
+                    break;
+            }
+            Image itemImage = ((ImageIcon) imageLoader.getImage(key)).getImage();
             game.getGraphics().drawImage(itemImage, item.getX(), item.getY(), this);
         });
-         */
 
         // スコアの更新
         scoreManager.addScore(1);
@@ -733,6 +780,7 @@ class Item {
     private int speed = 5;
     private int width;
     private int height;
+    private boolean isAlive = true;
 
     public Item(int x, int y, ItemType type) {
         this.x = x;
@@ -785,6 +833,25 @@ class Item {
     public boolean isVisible() {
         return visible;
     }
+    // getType
+    public ItemType getType() {
+        return type;
+    }
+    // getSpeed
+    public int getSpeed() {
+        return speed;
+    }
+
+    // isAlive
+    public boolean isAlive() {
+        return isAlive;
+    }
+
+    // setAlive
+    public void setAlive(boolean isAlive) {
+        this.isAlive = isAlive;
+    }
+
 }
 
 // アイテムの種類を表す列挙型
