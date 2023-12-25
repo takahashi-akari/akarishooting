@@ -318,14 +318,6 @@ class StageScreen extends Screen {
             boss.hit();
         }
 
-        // 自機がアイテムを取得したかどうかの判定
-        items.forEach(item -> {
-            if (player.collidesWith(item)) {
-                item.applyEffect(player);
-                item.setAlive(false);
-            }
-        });
-
         // 敵機が画面外に出たかどうかの判定
         enemies.removeIf(enemy -> enemy.getY() > Constants.SCREEN_HEIGHT);
 
@@ -354,6 +346,27 @@ class StageScreen extends Screen {
             // ゲームクリア画面へ
             game.setScreen(new GameClearScreen(game));
         }
+
+        // アイテムが自機に当たったかどうかの判定
+        items.forEach(item -> {
+            if (player.collidesWith(item)) {
+                switch(item.getType()) {
+                    case SCORE_UP:
+                        scoreManager.addScore(1000);
+                        break;
+                    case LIFE_UP:
+                        player.setLife(player.getLife() + 1);
+                        break;
+                    case SPEED_UP:
+                        player.setSpeed(player.getSpeed() + 1);
+                        break;
+                    case MISSILE_UPGRADE:
+                        // ミサイルの弾数を増やす
+                        break;
+                }
+                item.setAlive(false);
+            }
+        });
 
         // 他のオブジェクトの更新処理
     }
@@ -560,6 +573,9 @@ class Player {
     // setSpeed
     public void setSpeed(int speed) {
         this.speed = speed;
+    }
+
+    public void setLife(int i) {
     }
 }
 
@@ -814,6 +830,7 @@ class Item {
 
     public void applyEffect(Player player) {
         // アイテムに応じた効果をプレイヤーに適用
+
     }
 
     // 描画処理などその他のメソッド
