@@ -24,6 +24,8 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.swing.JPanel;
 import java.awt.Font;
+import java.awt.Color;
+import java.awt.Graphics;
 
 enum GameState {
     TITLE,
@@ -63,6 +65,52 @@ enum ImageKey {
     BOSS_BANG
 }
 
+// struct 星
+class Star {
+    private int x, y;
+    private int speed = 5;
+    private Color color;
+    private int interval = 3;
+
+    public Star(int startX, int startY, int speed) {
+        this.x = startX;
+        this.y = startY;
+        this.speed = speed;
+        // colorは灰色でspeedが速いほど白に近づく
+        this.color = new Color(200 - (10 - speed) * 10, 200 - (10 - speed) * 10, 200 - (10 - speed) * 10);
+    }
+
+    public void move() {
+        if (interval == 0) {
+            y += speed;
+            interval = 3;
+        } else {
+            interval--;
+        }
+        if (y > Constants.SCREEN_HEIGHT) {
+            y = 0;
+        }
+    }
+
+    // 描画処理などその他のメソッド
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public Color getColor() {
+        return color;
+    }
+
+    // getSpeed
+    public int getSpeed() {
+        return speed;
+    }
+}
+
 class Constants {
     public static final int SCREEN_WIDTH = 1024;
     public static final int SCREEN_HEIGHT = 768;
@@ -86,8 +134,9 @@ public class Game extends JFrame {
 
         screen = new StageScreen(this);
         // 背景は黒
-        screen.setBackground(java.awt.Color.BLACK);
+        screen.setBackground(Color.BLACK);
         getContentPane().add(screen);
+
 
         // ゲームループの設定
         timer = new Timer(20, e -> gameLoop());
@@ -161,6 +210,16 @@ class StageScreen extends Screen {
     InputHandler inputHandler;
     List<EnemyMissile> enemyMissiles = new ArrayList<>();
     int time;
+    // 星を100個生成
+    List<Star> stars = new ArrayList<>();
+    {
+        for (int i = 0; i < 50; i++) {
+            int x = (int) (Math.random() * Constants.SCREEN_WIDTH);
+            int y = (int) (Math.random() * Constants.SCREEN_HEIGHT);
+            int speed = (int) (Math.random() * 10) + 1;
+            stars.add(new Star(x, y, speed));
+        }
+    }
 
     public StageScreen(Game game) {
         super(game);
@@ -373,12 +432,20 @@ class StageScreen extends Screen {
             }
         });
 
+        // 星の移動
+        stars.forEach(Star::move);
+
         // 他のオブジェクトの更新処理
     }
     public void render() {
         // 画面を黒で塗りつぶす
         game.getGraphics().fillRect(0, 0, Constants.SCREEN_WIDTH, Constants.SCREEN_HEIGHT);
+
+        // 他のオブジェクトの描画処理
+        paint(game.getGraphics());
+
         Image playerImage = ((ImageIcon) imageLoader.getImage(ImageKey.PLAYER)).getImage();
+
 
         // playerの描画
         if (player.getBang() > 0 && !player.isAlive()) {
@@ -446,26 +513,24 @@ class StageScreen extends Screen {
             Image itemImage = ((ImageIcon) imageLoader.getImage(key)).getImage();
             game.getGraphics().drawImage(itemImage, item.getX(), item.getY(), this);
         });
-
-
-
-        // スコアの描画
-        // 文字色は白色
-
-        // 他のオブジェクトの描画処理
-        paint(game.getGraphics());
     }
 
     // paint
-    public void paint(java.awt.Graphics g) {
-        g.setColor(java.awt.Color.WHITE);
+    public void paint(Graphics g) {
+        g.setColor(Color.WHITE);
         g.setFont(g.getFont().deriveFont(30f));
         g.drawString("SCORE: " + scoreManager.getScore(), 700, 60);
 
         // 残り自機数の描画
-        g.setColor(java.awt.Color.WHITE);
+        g.setColor(Color.WHITE);
         g.setFont(g.getFont().deriveFont(30f));
         g.drawString("LIFE: " + player.getLife(), 80, 60);
+
+        // 星の描画
+        stars.forEach(star -> {
+            g.setColor(star.getColor());
+            g.fillRect(star.getX(), star.getY(), 1, 1);
+        });
     }
 }
 class GameOverScreen extends Screen {
@@ -1009,7 +1074,7 @@ class ImageLoader {
                 continue;
             }
             ImageIcon icon = images.get(key);
-            images.put(key, new ImageIcon(icon.getImage().getScaledInstance(icon.getIconWidth() / 2, icon.getIconHeight() / 2, java.awt.Image.SCALE_SMOOTH)));
+            images.put(key, new ImageIcon(icon.getImage().getScaledInstance(icon.getIconWidth() / 2, icon.getIconHeight() / 2, Image.SCALE_SMOOTH)));
         }
     }
 
