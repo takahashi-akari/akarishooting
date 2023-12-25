@@ -23,6 +23,7 @@ import javax.swing.ImageIcon;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.JPanel;
+import java.awt.Font;
 
 enum GameState {
     TITLE,
@@ -65,6 +66,7 @@ enum ImageKey {
 class Constants {
     public static final int SCREEN_WIDTH = 1024;
     public static final int SCREEN_HEIGHT = 768;
+    public static int missileFinalTime = (int) System.currentTimeMillis();
 }
 
 public class Game extends JFrame {
@@ -83,10 +85,12 @@ public class Game extends JFrame {
         setLocationRelativeTo(null);  // ウィンドウを画面中央に配置
 
         screen = new StageScreen(this);
+        // 背景は黒
+        screen.setBackground(java.awt.Color.BLACK);
         getContentPane().add(screen);
 
         // ゲームループの設定
-        timer = new Timer(16, e -> gameLoop());
+        timer = new Timer(20, e -> gameLoop());
         timer.start();
     }
 
@@ -117,19 +121,6 @@ public class Game extends JFrame {
 
         // 画面の再描画
         repaint();
-    }
-
-    // 画面の再描画
-    public void repaint() {
-        // 画面の再描画処理
-        // 自機や敵機、ミサイルなどのオブジェクトを描画
-        // 自機の画像を描画
-
-
-        // スコアや残り自機数などの情報を描画
-
-        // 画面の描画処理
-
     }
 
 }
@@ -169,6 +160,7 @@ class StageScreen extends Screen {
     ImageLoader imageLoader;
     InputHandler inputHandler;
     List<EnemyMissile> enemyMissiles = new ArrayList<>();
+    int time;
 
     public StageScreen(Game game) {
         super(game);
@@ -195,6 +187,9 @@ class StageScreen extends Screen {
 
         // アイテムの初期化
         // Item item = new Item(100, 100, ItemType.SCORE_UP);
+        
+        // time is now millisecobd
+        time = (int) System.currentTimeMillis();
     }
     public void update() {
         // ゲームの状態を更新
@@ -205,7 +200,10 @@ class StageScreen extends Screen {
             player.moveRight();
         }
         if (inputHandler.isFirePressed()) {
-            missiles.add(new Missile(player.getX(), player.getY()));
+            if (Math.abs(Constants.missileFinalTime - (int) System.currentTimeMillis()) > 500) {
+                missiles.add(new Missile(player.getX(), player.getY()));
+                Constants.missileFinalTime = (int) System.currentTimeMillis();
+            }
         }
 
         // アイテムをランダムに生成
@@ -289,6 +287,8 @@ class StageScreen extends Screen {
                 if (enemy.isAlive() && missile.collidesWith(enemy)) {
                     missile.hit();
                     enemy.hit();
+                    int time2 = (int) System.currentTimeMillis() - time;
+                    scoreManager.addScore(1000 - time2 / 100);
                 }
             });
             if (boss != null && missile.collidesWith(boss)) {
@@ -416,9 +416,25 @@ class StageScreen extends Screen {
             game.getGraphics().drawImage(itemImage, item.getX(), item.getY(), this);
         });
 
-        // スコアの更新
-        scoreManager.addScore(1);
-        scoreManager.checkHighScore();
+
+
+        // スコアの描画
+        // 文字色は白色
+
+        // 他のオブジェクトの描画処理
+        paint(game.getGraphics());
+    }
+
+    // paint
+    public void paint(java.awt.Graphics g) {
+        g.setColor(java.awt.Color.WHITE);
+        g.setFont(g.getFont().deriveFont(30f));
+        g.drawString("SCORE: " + scoreManager.getScore(), 700, 60);
+
+        // 残り自機数の描画
+        g.setColor(java.awt.Color.WHITE);
+        g.setFont(g.getFont().deriveFont(30f));
+        g.drawString("LIFE: " + player.getLife(), 80, 60);
     }
 }
 class GameOverScreen extends Screen {
@@ -733,6 +749,7 @@ class Missile {
         this.x = startX;
         this.y = startY;
         this.visible = true;
+        Constants.missileFinalTime = (int) System.currentTimeMillis();
     }
 
     public void move() {
@@ -863,7 +880,7 @@ enum ItemType {
 }
 
 class ScoreManager {
-    private int score;
+    private int score = 0;
     private List<Integer> highScores = new ArrayList<>();
 
     public ScoreManager() {
@@ -883,6 +900,10 @@ class ScoreManager {
     }
 
     // ハイスコアの取得や表示に関連するメソッド
+    // getScore
+    public int getScore() {
+        return score;
+    }
 }
 
 class ImageLoader {
