@@ -117,6 +117,8 @@ public class Game extends JFrame {
     public void repaint() {
         // 画面の再描画処理
         // 自機や敵機、ミサイルなどのオブジェクトを描画
+        // 自機の画像を描画
+        
 
         // スコアや残り自機数などの情報を描画
 
@@ -166,7 +168,7 @@ class StageScreen extends Screen {
         scoreManager = new ScoreManager();
         imageLoader = new ImageLoader();
         inputHandler = new InputHandler();
-        player = new Player(Constants.SCREEN_WIDTH / 2, Constants.SCREEN_HEIGHT - imageLoader.getImageHeight("player") - 10);
+        player = new Player(Constants.SCREEN_WIDTH / 2, Constants.SCREEN_HEIGHT - imageLoader.getImageHeight(ImageKey.PLAYER) - 10);
         player.setWidth(imageLoader.getImageWidth(ImageKey.PLAYER));
         player.setHeight(imageLoader.getImageHeight(ImageKey.PLAYER));
         game.addKeyListener(inputHandler);
