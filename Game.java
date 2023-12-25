@@ -214,7 +214,15 @@ class StageScreen extends Screen {
         missiles.forEach(Missile::move);
 
         // 敵機の移動
-        enemies.forEach(Enemy::move);
+        // このメソッド内で敵機の動きのロジックを実装、enemy.moveは使わない
+        enemies.forEach(enemy -> {
+            // 左端と右端に到達したら下に移動、左右の移動方向を反転
+            if (enemy.getX() < 0 || enemy.getX() > Constants.SCREEN_WIDTH - enemy.getWidth()) {
+                enemy.setY(enemy.getY() + 10);
+                enemy.setSpeed(-enemy.getSpeed());
+            }
+            enemy.setX(enemy.getX() + enemy.getSpeed());
+        });
 
         // ボス機の移動
         if (boss != null) {
@@ -451,6 +459,7 @@ class Enemy {
     private boolean alive = true;
     private int width;
     private int height;
+    private int speed = 5;
 
     public Enemy(int startX, int startY) {
         this.x = startX;
@@ -459,6 +468,7 @@ class Enemy {
 
     public void move() {
         // 敵機の動きのロジック
+
     }
 
     public void hit() {
@@ -494,14 +504,34 @@ class Enemy {
         return x;
     }
 
+    // setX
+    public void setX(int x) {
+        this.x = x;
+    }
+
     // getY
     public int getY() {
         return y;
     }
 
+    // setY
+    public void setY(int y) {
+        this.y = y;
+    }
+
     // isVisible
     public boolean isVisible() {
         return true;
+    }
+
+    // getSpeed
+    public int getSpeed() {
+        return speed;
+    }
+
+    // setSpeed
+    public void setSpeed(int speed) {
+        this.speed = speed;
     }
 }
 
@@ -631,9 +661,18 @@ class Item {
         return x;
     }
 
+    // setX
+    public void setX(int x) {
+        this.x = x;
+    }
+
     // getY
     public int getY() {
         return y;
+    }
+    // setY
+    public void setY(int y) {
+        this.y = y;
     }
 
     // isVisible
