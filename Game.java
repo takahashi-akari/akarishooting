@@ -194,10 +194,14 @@ class StageScreen extends Screen {
     public void update() {
         // ゲームの状態を更新
         if (inputHandler.isLeftPressed()) {
-            player.moveLeft();
+            if (player.getX() > 0) {
+                player.moveLeft();
+            }
         }
         if (inputHandler.isRightPressed()) {
-            player.moveRight();
+            if (player.getX() < Constants.SCREEN_WIDTH - player.getWidth()) {
+                player.moveRight();
+            }
         }
         if (inputHandler.isFirePressed()) {
             if (Math.abs(Constants.missileFinalTime - (int) System.currentTimeMillis()) > 500) {
@@ -207,7 +211,7 @@ class StageScreen extends Screen {
         }
 
         // アイテムをランダムに生成
-        if (Math.random() < 0.006) {
+        if (Math.random() < 0.004) {
             int x = (int) (Math.random() * Constants.SCREEN_WIDTH);
             int type = (int) (Math.random() * 4);
             ImageKey key = null;
@@ -256,6 +260,9 @@ class StageScreen extends Screen {
         // 敵機のミサイルの発射
         // このメソッド内で敵機のミサイルの発射のロジックを実装
         enemies.forEach(enemy -> {
+            if (!enemy.isAlive()) {
+                return;
+            }
             // 一定の確率でミサイルを発射
             if (Math.random() < 0.001) {
                 enemyMissiles.add(new EnemyMissile(enemy.getX() + imageLoader.getImageWidth(ImageKey.ENEMY1) / 2, enemy.getY() + imageLoader.getImageHeight(ImageKey.ENEMY1)));
