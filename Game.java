@@ -349,6 +349,9 @@ class StageScreen extends Screen {
 
         // アイテムが自機に当たったかどうかの判定
         items.forEach(item -> {
+            if(!item.isAlive()) {
+                return;
+            }
             if (player.collidesWith(item)) {
                 switch(item.getType()) {
                     case SCORE_UP:
@@ -534,6 +537,9 @@ class Player {
     // collidesWith
     public boolean collidesWith(Item item) {
         // 自機とアイテムの当たり判定
+        if(x < item.getX() + item.getWidth() && x + width > item.getX() && y < item.getY() + item.getHeight() && y + height > item.getY()) {
+            return true;
+        }
         return false;
     }
 
