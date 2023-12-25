@@ -13,6 +13,8 @@
 
 import javax.swing.JFrame;
 import javax.swing.Timer;
+
+import java.awt.Image;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.List;
@@ -67,6 +69,8 @@ class Constants {
 
 public class Game extends JFrame {
     private Timer timer;
+    private Screen screen;
+
 
     public Game() {
         initUI();
@@ -78,6 +82,9 @@ public class Game extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);  // ウィンドウを画面中央に配置
 
+        screen = new StageScreen(this);
+        getContentPane().add(screen);
+
         // ゲームループの設定
         timer = new Timer(16, e -> gameLoop());
         timer.start();
@@ -86,7 +93,6 @@ public class Game extends JFrame {
     private void gameLoop() {
         // ゲーム状態の更新と画面の再描画
         // StageScreenを表示している場合は、StageScreenのupdate()とrender()を呼び出す
-        StageScreen screen = new StageScreen(this);
         screen.update();
         screen.render();
     }
@@ -118,7 +124,7 @@ public class Game extends JFrame {
         // 画面の再描画処理
         // 自機や敵機、ミサイルなどのオブジェクトを描画
         // 自機の画像を描画
-        
+
 
         // スコアや残り自機数などの情報を描画
 
@@ -282,8 +288,11 @@ class StageScreen extends Screen {
         // 他のオブジェクトの更新処理
     }
     public void render() {
-        // 画面の描画
-        game.repaint();
+        // 画面を黒で塗りつぶす
+        game.getGraphics().fillRect(0, 0, Constants.SCREEN_WIDTH, Constants.SCREEN_HEIGHT);
+        // playerの描画
+        Image playerImage = ((ImageIcon) imageLoader.getImage(ImageKey.PLAYER)).getImage();
+        game.getGraphics().drawImage(playerImage, player.getX(), player.getY(), this);
 
         // スコアの更新
         scoreManager.addScore(1);
