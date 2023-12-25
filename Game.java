@@ -70,7 +70,7 @@ class Star {
     private int x, y;
     private int speed = 5;
     private Color color;
-    private int interval = 3;
+    private int interval = 4;
 
     public Star(int startX, int startY, int speed) {
         this.x = startX;
@@ -83,7 +83,7 @@ class Star {
     public void move() {
         if (interval == 0) {
             y += speed;
-            interval = 3;
+            interval = 4;
         } else {
             interval--;
         }
@@ -115,6 +115,8 @@ class Constants {
     public static final int SCREEN_WIDTH = 1024;
     public static final int SCREEN_HEIGHT = 768;
     public static int missileFinalTime = (int) System.currentTimeMillis();
+    public static int missileInterval = 1000;
+    public static boolean missileStart = true;
 }
 
 public class Game extends JFrame {
@@ -234,9 +236,17 @@ class StageScreen extends Screen {
         // 敵機の初期化
         for (int i = 0; i < 7; i++) {
             for (int j = 0; j < 3; j++) {
-                Enemy enemy = new Enemy(100 + i * 100, 100 + j * 100);
-                enemy.setWidth(imageLoader.getImageWidth(ImageKey.ENEMY1));
-                enemy.setHeight(imageLoader.getImageHeight(ImageKey.ENEMY1));
+                ImageKey key = null;
+                if (j == 0) {
+                    key = ImageKey.ENEMY1;
+                } else if (j == 1) {
+                    key = ImageKey.ENEMY2;
+                } else if (j == 2) {
+                    key = ImageKey.ENEMY3;
+                }
+                Enemy enemy = new Enemy(100 + i * 100, 100 + j * 100, key);
+                enemy.setWidth(imageLoader.getImageWidth(key));
+                enemy.setHeight(imageLoader.getImageHeight(key));
                 enemies.add(enemy);
             }
         }
@@ -264,9 +274,10 @@ class StageScreen extends Screen {
                 }
             }
             if (inputHandler.isFirePressed()) {
-                if (Math.abs(Constants.missileFinalTime - (int) System.currentTimeMillis()) > 500) {
+                if (Constants.missileStart || Math.abs(Constants.missileFinalTime - (int) System.currentTimeMillis()) > Constants.missileInterval) {
                     missiles.add(new Missile(player.getX(), player.getY()));
                     Constants.missileFinalTime = (int) System.currentTimeMillis();
+                    Constants.missileStart = false;
                 }
             }
         }
@@ -276,26 +287,27 @@ class StageScreen extends Screen {
             int x = (int) (Math.random() * Constants.SCREEN_WIDTH);
             int type = (int) (Math.random() * 4);
             ImageKey key = null;
+            ItemType itemType = null;
             switch(type) {
                 case 0:
-                    type = ItemType.SCORE_UP.ordinal();
+                    itemType = ItemType.SCORE_UP;
                     key = ImageKey.ITEM1;
                     break;
                 case 1:
-                    type = ItemType.LIFE_UP.ordinal();
+                    itemType = ItemType.LIFE_UP;
                     key = ImageKey.ITEM2;
                     break;
                 case 2:
-                    type = ItemType.SPEED_UP.ordinal();
+                    itemType = ItemType.SPEED_UP;
                     key = ImageKey.ITEM3;
                     break;
                 case 3:
-                    type = ItemType.MISSILE_UPGRADE.ordinal();
+                    itemType = ItemType.MISSILE_UPGRADE;
                     key = ImageKey.ITEM4;
                     break;
             }
             int y = -imageLoader.getImageHeight(key);
-            items.add(new Item(x, y, ItemType.values()[type]));
+            items.add(new Item(x, y, itemType));
         }
 
         // アイテムを上から下に移動
@@ -425,7 +437,7 @@ class StageScreen extends Screen {
                         player.setSpeed(player.getSpeed() + 1);
                         break;
                     case MISSILE_UPGRADE:
-                        // ミサイルの弾数を増やす
+                        Constants.missileInterval -= 100;
                         break;
                 }
                 item.setAlive(false);
@@ -458,7 +470,7 @@ class StageScreen extends Screen {
         // 敵機の描画
         enemies.forEach(enemy -> {
             if (enemy.isAlive()) {
-                Image enemyImage = ((ImageIcon) imageLoader.getImage(ImageKey.ENEMY1)).getImage();
+                Image enemyImage = ((ImageIcon) imageLoader.getImage(enemy.getKey())).getImage();
                 game.getGraphics().drawImage(enemyImage, enemy.getX(), enemy.getY(), this);
             } else if(enemy.getBang() > 0) {
                 Image enemyBangImage = ((ImageIcon) imageLoader.getImage(ImageKey.ENEMY_BANG)).getImage();
@@ -687,10 +699,12 @@ class Enemy {
     private int speed = 5;
     // bang
     private int bang = 0;
+    ImageKey key;
 
-    public Enemy(int startX, int startY) {
+    public Enemy(int startX, int startY, ImageKey key) {
         this.x = startX;
         this.y = startY;
+        this.key = key;
     }
 
     public void move() {
@@ -770,6 +784,11 @@ class Enemy {
     public void setBang(int bang) {
         this.bang = bang;
     }
+
+    // key
+    public ImageKey getKey() {
+        return key;
+    }
 }
 
 class EnemyMissile {
@@ -829,9 +848,10 @@ class Boss extends Enemy {
     private boolean alive = true;
     private int width;
     private int height;
+    ImageKey key;
 
     public Boss(int startX, int startY) {
-        super(startX, startY);
+        super(startX, startY, ImageKey.BOSS1);
     }
 
     public void move() {
