@@ -193,20 +193,22 @@ class StageScreen extends Screen {
     }
     public void update() {
         // ゲームの状態を更新
-        if (inputHandler.isLeftPressed()) {
-            if (player.getX() > 0) {
-                player.moveLeft();
+        if (player.isAlive()) {
+            if (inputHandler.isLeftPressed()) {
+                if (player.getX() > 0) {
+                    player.moveLeft();
+                }
             }
-        }
-        if (inputHandler.isRightPressed()) {
-            if (player.getX() < Constants.SCREEN_WIDTH - player.getWidth()) {
-                player.moveRight();
+            if (inputHandler.isRightPressed()) {
+                if (player.getX() < Constants.SCREEN_WIDTH - player.getWidth()) {
+                    player.moveRight();
+                }
             }
-        }
-        if (inputHandler.isFirePressed()) {
-            if (Math.abs(Constants.missileFinalTime - (int) System.currentTimeMillis()) > 500) {
-                missiles.add(new Missile(player.getX(), player.getY()));
-                Constants.missileFinalTime = (int) System.currentTimeMillis();
+            if (inputHandler.isFirePressed()) {
+                if (Math.abs(Constants.missileFinalTime - (int) System.currentTimeMillis()) > 500) {
+                    missiles.add(new Missile(player.getX(), player.getY()));
+                    Constants.missileFinalTime = (int) System.currentTimeMillis();
+                }
             }
         }
 
@@ -264,7 +266,7 @@ class StageScreen extends Screen {
                 return;
             }
             // 一定の確率でミサイルを発射
-            if (Math.random() < 0.001) {
+            if (Math.random() < 0.002) {
                 enemyMissiles.add(new EnemyMissile(enemy.getX() + imageLoader.getImageWidth(ImageKey.ENEMY1) / 2, enemy.getY() + imageLoader.getImageHeight(ImageKey.ENEMY1)));
             }
         });
@@ -336,9 +338,9 @@ class StageScreen extends Screen {
         }
 
         // 自機がやられたかどうかの判定
-        if (player.getLife() <= 0) {
+        if (!player.isAlive()) {
             // ゲームオーバー画面へ
-            game.setScreen(new GameOverScreen(game));
+            //game.setScreen(new GameOverScreen(game));
         }
 
         // ボス機がやられたかどうかの判定
@@ -376,10 +378,16 @@ class StageScreen extends Screen {
     public void render() {
         // 画面を黒で塗りつぶす
         game.getGraphics().fillRect(0, 0, Constants.SCREEN_WIDTH, Constants.SCREEN_HEIGHT);
-        // playerの描画
         Image playerImage = ((ImageIcon) imageLoader.getImage(ImageKey.PLAYER)).getImage();
-        game.getGraphics().drawImage(playerImage, player.getX(), player.getY(), this);
 
+        // playerの描画
+        if (player.getBang() > 0 && !player.isAlive()) {
+            Image playerBangImage = ((ImageIcon) imageLoader.getImage(ImageKey.PLAYER_BANG)).getImage();
+            game.getGraphics().drawImage(playerBangImage, player.getX(), player.getY(), this);
+            player.setBang(player.getBang() - 1);
+        } else if (player.isAlive()) {
+            game.getGraphics().drawImage(playerImage, player.getX(), player.getY(), this);
+        }
         // 敵機の描画
         enemies.forEach(enemy -> {
             if (enemy.isAlive()) {
@@ -493,6 +501,9 @@ class Player {
     private int life = 5;
     private int width;
     private int height;
+    private boolean isAlive = true;
+    // bang
+    private int bang = 0;
 
     public Player(int startX, int startY) {
         this.x = startX;
@@ -509,7 +520,13 @@ class Player {
 
     public void hit() {
         // 自機が攻撃を受けた時の処理
-        life--;
+        if (life == 1) {
+            isAlive = false;
+            bang = 100;
+        }
+        if (life > 0) {
+            life--;
+        }
     }
 
     // getX
@@ -568,7 +585,10 @@ class Player {
 
     // isAlive
     public boolean isAlive() {
-        return life > 0;
+        return isAlive;
+    }
+    public void setAlive(boolean isAlive) {
+        this.isAlive = isAlive;
     }
 
     // getSpeed
@@ -582,6 +602,15 @@ class Player {
     }
 
     public void setLife(int i) {
+    }
+
+    // bang
+    public int getBang() {
+        return bang;
+    }
+
+    public void setBang(int bang) {
+        this.bang = bang;
     }
 }
 
