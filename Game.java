@@ -266,7 +266,7 @@ class StageScreen extends Screen {
                 return;
             }
             // 一定の確率でミサイルを発射
-            if (Math.random() < 0.002) {
+            if (Math.random() < 0.004) {
                 enemyMissiles.add(new EnemyMissile(enemy.getX() + imageLoader.getImageWidth(ImageKey.ENEMY1) / 2, enemy.getY() + imageLoader.getImageHeight(ImageKey.ENEMY1)));
             }
         });
