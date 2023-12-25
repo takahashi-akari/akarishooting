@@ -450,31 +450,32 @@ class StageScreen extends Screen {
         // 他のオブジェクトの更新処理
     }
     public void render() {
-        // 画面を黒で塗りつぶす
-        game.getGraphics().fillRect(0, 0, Constants.SCREEN_WIDTH, Constants.SCREEN_HEIGHT);
-
-        // 他のオブジェクトの描画処理
         paint(game.getGraphics());
+    }
+
+    // paint
+    public void paint(Graphics g) {
+        // 画面を黒で塗りつぶす
+        g.fillRect(0, 0, Constants.SCREEN_WIDTH, Constants.SCREEN_HEIGHT);
 
         Image playerImage = ((ImageIcon) imageLoader.getImage(ImageKey.PLAYER)).getImage();
-
 
         // playerの描画
         if (player.getBang() > 0 && !player.isAlive()) {
             Image playerBangImage = ((ImageIcon) imageLoader.getImage(ImageKey.PLAYER_BANG)).getImage();
-            game.getGraphics().drawImage(playerBangImage, player.getX(), player.getY(), this);
+            g.drawImage(playerBangImage, player.getX(), player.getY(), this);
             player.setBang(player.getBang() - 1);
         } else if (player.isAlive()) {
-            game.getGraphics().drawImage(playerImage, player.getX(), player.getY(), this);
+            g.drawImage(playerImage, player.getX(), player.getY(), this);
         }
         // 敵機の描画
         enemies.forEach(enemy -> {
             if (enemy.isAlive()) {
                 Image enemyImage = ((ImageIcon) imageLoader.getImage(enemy.getKey())).getImage();
-                game.getGraphics().drawImage(enemyImage, enemy.getX(), enemy.getY(), this);
+                g.drawImage(enemyImage, enemy.getX(), enemy.getY(), this);
             } else if(enemy.getBang() > 0) {
                 Image enemyBangImage = ((ImageIcon) imageLoader.getImage(ImageKey.ENEMY_BANG)).getImage();
-                game.getGraphics().drawImage(enemyBangImage, enemy.getX(), enemy.getY(), this);
+                g.drawImage(enemyBangImage, enemy.getX(), enemy.getY(), this);
                 enemy.setBang(enemy.getBang() - 1);
             }
         });
@@ -483,7 +484,7 @@ class StageScreen extends Screen {
         /*
         if (boss != null) {
             Image bossImage = ((ImageIcon) imageLoader.getImage(ImageKey.BOSS1)).getImage();
-            game.getGraphics().drawImage(bossImage, boss.getX(), boss.getY(), this);
+            g.drawImage(bossImage, boss.getX(), boss.getY(), this);
         }
         */
 
@@ -493,13 +494,13 @@ class StageScreen extends Screen {
                 return;
             }
             Image missileImage = ((ImageIcon) imageLoader.getImage(ImageKey.PLAYER_MISSILE)).getImage();
-            game.getGraphics().drawImage(missileImage, missile.getX() + playerImage.getWidth(this) / 2 - missileImage.getWidth(this) / 2, missile.getY(), this);
+            g.drawImage(missileImage, missile.getX() + playerImage.getWidth(this) / 2 - missileImage.getWidth(this) / 2, missile.getY(), this);
         });
 
         // 敵機のミサイルの描画
         enemyMissiles.forEach(missile -> {
             Image missileImage = ((ImageIcon) imageLoader.getImage(ImageKey.ENEMY_MISSILE)).getImage();
-            game.getGraphics().drawImage(missileImage, missile.getX(), missile.getY(), this);
+            g.drawImage(missileImage, missile.getX(), missile.getY(), this);
         });
 
         // アイテムの描画
@@ -523,12 +524,9 @@ class StageScreen extends Screen {
                     break;
             }
             Image itemImage = ((ImageIcon) imageLoader.getImage(key)).getImage();
-            game.getGraphics().drawImage(itemImage, item.getX(), item.getY(), this);
+            g.drawImage(itemImage, item.getX(), item.getY(), this);
         });
-    }
 
-    // paint
-    public void paint(Graphics g) {
         g.setColor(Color.WHITE);
         g.setFont(g.getFont().deriveFont(30f));
         g.drawString("SCORE: " + scoreManager.getScore(), 700, 60);
