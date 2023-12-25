@@ -294,6 +294,34 @@ class StageScreen extends Screen {
         Image playerImage = ((ImageIcon) imageLoader.getImage(ImageKey.PLAYER)).getImage();
         game.getGraphics().drawImage(playerImage, player.getX(), player.getY(), this);
 
+        // 敵機の描画
+        enemies.forEach(enemy -> {
+            Image enemyImage = ((ImageIcon) imageLoader.getImage(ImageKey.ENEMY1)).getImage();
+            game.getGraphics().drawImage(enemyImage, enemy.getX(), enemy.getY(), this);
+        });
+
+        // ボス機の描画
+        /*
+        if (boss != null) {
+            Image bossImage = ((ImageIcon) imageLoader.getImage(ImageKey.BOSS1)).getImage();
+            game.getGraphics().drawImage(bossImage, boss.getX(), boss.getY(), this);
+        }
+        */
+
+        // ミサイルの描画
+        missiles.forEach(missile -> {
+            Image missileImage = ((ImageIcon) imageLoader.getImage(ImageKey.PLAYER_MISSILE)).getImage();
+            game.getGraphics().drawImage(missileImage, missile.getX() + playerImage.getWidth(this) / 2 - missileImage.getWidth(this) / 2, missile.getY(), this);
+        });
+
+        // アイテムの描画
+        /*
+        items.forEach(item -> {
+            Image itemImage = ((ImageIcon) imageLoader.getImage(ImageKey.ITEM1)).getImage();
+            game.getGraphics().drawImage(itemImage, item.getX(), item.getY(), this);
+        });
+         */
+
         // スコアの更新
         scoreManager.addScore(1);
         scoreManager.checkHighScore();
