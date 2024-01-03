@@ -117,6 +117,7 @@ class Constants {
     public static int missileFinalTime = (int) System.currentTimeMillis();
     public static int missileInterval = 1000;
     public static boolean missileStart = true;
+    public static boolean isGameOver = false;
 }
 
 public class Game extends JFrame {
@@ -178,6 +179,16 @@ public class Game extends JFrame {
 
 abstract class Screen extends JPanel {
     protected Game game;
+    // 星を100個生成
+    protected List<Star> stars = new ArrayList<>();
+    {
+        for (int i = 0; i < 50; i++) {
+            int x = (int) (Math.random() * Constants.SCREEN_WIDTH);
+            int y = (int) (Math.random() * Constants.SCREEN_HEIGHT);
+            int speed = (int) (Math.random() * 10) + 1;
+            stars.add(new Star(x, y, speed));
+        }
+    }
 
     public Screen(Game game) {
         this.game = game;
@@ -194,16 +205,6 @@ class TitleScreen extends Screen {
     private InputHandler inputHandler;
     private int arrow = 0;
     private boolean isArrowPressed = false;
-    // 星を100個生成
-    List<Star> stars = new ArrayList<>();
-    {
-        for (int i = 0; i < 50; i++) {
-            int x = (int) (Math.random() * Constants.SCREEN_WIDTH);
-            int y = (int) (Math.random() * Constants.SCREEN_HEIGHT);
-            int speed = (int) (Math.random() * 10) + 1;
-            stars.add(new Star(x, y, speed));
-        }
-    }
 
     public TitleScreen(Game game) {
         super(game);
@@ -302,16 +303,6 @@ class StageScreen extends Screen {
     InputHandler inputHandler;
     List<EnemyMissile> enemyMissiles = new ArrayList<>();
     int time;
-    // 星を100個生成
-    List<Star> stars = new ArrayList<>();
-    {
-        for (int i = 0; i < 50; i++) {
-            int x = (int) (Math.random() * Constants.SCREEN_WIDTH);
-            int y = (int) (Math.random() * Constants.SCREEN_HEIGHT);
-            int speed = (int) (Math.random() * 10) + 1;
-            stars.add(new Star(x, y, speed));
-        }
-    }
 
     public StageScreen(Game game) {
         super(game);
@@ -506,8 +497,8 @@ class StageScreen extends Screen {
 
         // 自機がやられたかどうかの判定
         if (!player.isAlive()) {
-            // ゲームオーバー画面へ
-            //game.setScreen(new GameOverScreen(game));
+            // ゲームオーバー
+            Constants.isGameOver = true;
         }
 
         // ボス機がやられたかどうかの判定
@@ -635,6 +626,13 @@ class StageScreen extends Screen {
             g.setColor(star.getColor());
             g.fillRect(star.getX(), star.getY(), 1, 1);
         });
+
+        // ゲームオーバー表示
+        if (Constants.isGameOver) {
+            g.setColor(Color.WHITE);
+            g.setFont(g.getFont().deriveFont(50f));
+            g.drawString("Game Over", 200, 200);
+        }
     }
 }
 class GameOverScreen extends Screen {
@@ -660,8 +658,25 @@ class HighScoreScreen extends Screen {
         super(game);
     }
     public void update() {
+
     }
     public void render() {
+        paint(game.getGraphics());
+    }
+    public void paint(Graphics g) {
+        // 画面を黒で塗りつぶす
+        g.fillRect(0, 0, Constants.SCREEN_WIDTH, Constants.SCREEN_HEIGHT);
+
+        // 星の描画
+        stars.forEach(star -> {
+            g.setColor(star.getColor());
+            g.fillRect(star.getX(), star.getY(), 1, 1);
+        });
+
+        // タイトルを白文字で表示
+        g.setColor(Color.WHITE);
+        g.setFont(g.getFont().deriveFont(50f));
+        g.drawString("High Score", 200, 200);
     }
 }
 class Player {
