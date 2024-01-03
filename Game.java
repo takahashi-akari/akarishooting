@@ -134,7 +134,7 @@ public class Game extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);  // ウィンドウを画面中央に配置
 
-        screen = new StageScreen(this);
+        screen = new TitleScreen(this);
         // 背景は黒
         screen.setBackground(Color.BLACK);
         getContentPane().add(screen);
@@ -191,14 +191,83 @@ abstract class Screen extends JPanel {
     }
 }
 class TitleScreen extends Screen {
+    private InputHandler inputHandler;
+    private int arrow = 0;
+    private boolean isArrowPressed = false;
+    // 星を100個生成
+    List<Star> stars = new ArrayList<>();
+    {
+        for (int i = 0; i < 50; i++) {
+            int x = (int) (Math.random() * Constants.SCREEN_WIDTH);
+            int y = (int) (Math.random() * Constants.SCREEN_HEIGHT);
+            int speed = (int) (Math.random() * 10) + 1;
+            stars.add(new Star(x, y, speed));
+        }
+    }
+
     public TitleScreen(Game game) {
         super(game);
+        inputHandler = new InputHandler();
+        game.addKeyListener(inputHandler);
     }
     public void update() {
         // タイトル画面の更新処理
+        // 右矢印キーを押したらarrowを1増やす
+        if (inputHandler.isRightPressed()) {
+            arrow++;
+            if (arrow > 1) {
+                arrow = 1;
+            }
+            this.isArrowPressed = true;
+        }
+        // 左矢印キーを押したらarrowを1減らす
+        else if (inputHandler.isLeftPressed()) {
+            arrow--;
+            if (arrow < 0) {
+                arrow = 0;
+            }
+            this.isArrowPressed = true;
+        }
+
+        else {
+            this.isArrowPressed = false;
+        }
+
+        // 星を移動
+        stars.forEach(Star::move);
     }
     public void render() {
         // タイトル画面の描画処理
+        paint(getGraphics());
+    }
+
+    // paint
+    public void paint(Graphics g) {
+        // 画面を黒で塗りつぶす
+        g.fillRect(0, 0, Constants.SCREEN_WIDTH, Constants.SCREEN_HEIGHT);
+
+        // 星の描画
+        stars.forEach(star -> {
+            g.setColor(star.getColor());
+            g.fillRect(star.getX(), star.getY(), 1, 1);
+        });
+
+        // 白文字で「New Game」と「Score Ranking」を表示
+        g.setColor(Color.WHITE);
+        g.setFont(g.getFont().deriveFont(30f));
+        g.drawString("New Game", 400, 300);
+        g.drawString("Score Ranking", 400, 400);
+        // 右矢印で選択中の項目を表示
+        if (arrow == 0) {
+            g.drawString(">", 350, 300);
+        } else if (arrow == 1) {
+            g.drawString(">", 350, 400);
+        }
+
+        // タイトルを白文字で表示
+        g.setColor(Color.WHITE);
+        g.setFont(g.getFont().deriveFont(50f));
+        g.drawString("Akari Shooting Game", 200, 200);
     }
 }
 class StageScreen extends Screen {
