@@ -235,6 +235,16 @@ class TitleScreen extends Screen {
 
         // 星を移動
         stars.forEach(Star::move);
+
+        if (inputHandler.isFirePressed()) {
+            if (arrow == 0) {
+                // New Gameを選択したらステージ画面へ
+                game.setScreen(new StageScreen(game));
+            } else if (arrow == 1) {
+                // Score Rankingを選択したらハイスコア画面へ
+                game.setScreen(new HighScoreScreen(game));
+            }
+        }
     }
     public void render() {
         // タイトル画面の描画処理
