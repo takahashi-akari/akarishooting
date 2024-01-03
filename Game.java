@@ -538,7 +538,7 @@ class StageScreen extends Screen {
         enemies.removeIf(enemy -> !enemy.isAlive() && enemy.getBang() == 0);
 
         // 敵機が全滅したかどうかの判定
-        if (enemies.isEmpty()) {
+        if (enemies.isEmpty() && boss == null) {
             // ボス機の出現
             boss = new Boss(Constants.SCREEN_WIDTH / 2, 150, ImageKey.BOSS1);
             boss.setX(Constants.SCREEN_WIDTH / 2 - imageLoader.getImageWidth(ImageKey.BOSS1) / 2);
