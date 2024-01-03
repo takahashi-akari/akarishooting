@@ -118,6 +118,7 @@ class Constants {
     public static int missileInterval = 1000;
     public static boolean missileStart = true;
     public static boolean isGameOver = false;
+    public static boolean isGameClear = false;
 }
 
 public class Game extends JFrame {
@@ -303,6 +304,9 @@ class StageScreen extends Screen {
     InputHandler inputHandler;
     List<EnemyMissile> enemyMissiles = new ArrayList<>();
     int time;
+    int displayStage = 50;
+    int displayGameOver = 50;
+    int displayGameClear = 50;
 
     public StageScreen(Game game) {
         super(game);
@@ -342,6 +346,22 @@ class StageScreen extends Screen {
         time = (int) System.currentTimeMillis();
     }
     public void update() {
+        if (displayStage > 0) {
+            displayStage--;
+            return;
+        }
+        if (Constants.isGameOver) {
+            if (displayGameOver > 0) {
+                displayGameOver--;
+                return;
+            }
+        }
+        if (Constants.isGameClear) {
+            if (displayGameClear > 0) {
+                displayGameClear--;
+                return;
+            }
+        }
         // ゲームの状態を更新
         if (player.isAlive()) {
             if (inputHandler.isLeftPressed()) {
@@ -505,6 +525,7 @@ class StageScreen extends Screen {
         if (boss != null && !boss.isAlive()) {
             // ゲームクリア画面へ
             // game.setScreen(new GameClearScreen(game));
+            Constants.isGameClear = true;
         }
 
         // アイテムが自機に当たったかどうかの判定
@@ -544,6 +565,24 @@ class StageScreen extends Screen {
     public void paint(Graphics g) {
         // 画面を黒で塗りつぶす
         g.fillRect(0, 0, Constants.SCREEN_WIDTH, Constants.SCREEN_HEIGHT);
+        if (displayStage > 0) {
+            g.setColor(Color.WHITE);
+            g.setFont(g.getFont().deriveFont(50f));
+            g.drawString("Stage 1", 400, 400);
+            return;
+        }
+
+        if (Constants.isGameOver) {
+            g.setColor(Color.WHITE);
+            g.setFont(g.getFont().deriveFont(50f));
+            g.drawString("Game Over", 200, 200);
+        }
+
+        if (Constants.isGameClear) {
+            g.setColor(Color.WHITE);
+            g.setFont(g.getFont().deriveFont(50f));
+            g.drawString("Game Clear", 200, 200);
+        }
 
         Image playerImage = ((ImageIcon) imageLoader.getImage(ImageKey.PLAYER)).getImage();
 
