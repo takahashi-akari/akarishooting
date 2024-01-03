@@ -398,7 +398,10 @@ class StageScreen extends Screen {
             }
             if (inputHandler.isFirePressed()) {
                 if (Constants.missileStart || Math.abs(Constants.missileFinalTime - (int) System.currentTimeMillis()) > Constants.missileInterval) {
-                    missiles.add(new Missile(player.getX(), player.getY()));
+                    Missile missile = new Missile(player.getX() + player.getWidth() / 2, player.getY());
+                    missile.setWidth(imageLoader.getImageWidth(ImageKey.PLAYER_MISSILE));
+                    missile.setHeight(imageLoader.getImageHeight(ImageKey.PLAYER_MISSILE));
+                    missiles.add(missile);
                     Constants.missileFinalTime = (int) System.currentTimeMillis();
                     Constants.missileStart = false;
                 }
@@ -537,7 +540,8 @@ class StageScreen extends Screen {
         // 敵機が全滅したかどうかの判定
         if (enemies.isEmpty()) {
             // ボス機の出現
-            boss = new Boss(Constants.SCREEN_WIDTH / 2, 100, ImageKey.BOSS1);
+            boss = new Boss(Constants.SCREEN_WIDTH / 2, 150, ImageKey.BOSS1);
+            boss.setX(Constants.SCREEN_WIDTH / 2 - imageLoader.getImageWidth(ImageKey.BOSS1) / 2);
             boss.setHeight(imageLoader.getImageHeight(ImageKey.BOSS1));
             boss.setWidth(imageLoader.getImageWidth(ImageKey.BOSS1));
         }
@@ -634,12 +638,12 @@ class StageScreen extends Screen {
         });
 
         // ボス機の描画
-        if (boss != null && boss.isAlive()) {
+        if (boss != null) {
             if (boss.getBang() > 0) {
                 Image bossBangImage = ((ImageIcon) imageLoader.getImage(ImageKey.BOSS_BANG)).getImage();
                 g.drawImage(bossBangImage, boss.getX(), boss.getY(), this);
                 boss.setBang(boss.getBang() - 1);
-            } else {
+            } else if (boss.isAlive()) {
                 Image bossImage = ((ImageIcon) imageLoader.getImage(boss.getKey())).getImage();
                 g.drawImage(bossImage, boss.getX(), boss.getY(), this);
             }
@@ -1034,12 +1038,13 @@ class Boss {
     }
 
     public void move() {
+        //System.out.println("boss move");
         // 敵機の動きのロジック
         // 横向きの８の字を描くように移動
         if (x < 0 || x > Constants.SCREEN_WIDTH - width) {
             speed = -speed;
         }
-        if (y < 0 || y > Constants.SCREEN_HEIGHT - height) {
+        if (y < 0 || y > Constants.SCREEN_HEIGHT - height - 150) {
             speed = -speed;
         }
         x += speed;
@@ -1188,6 +1193,26 @@ class Missile {
         return false;
     }
     // 描画処理などその他のメソッド
+    // setWidth
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
+    // getWidth
+    public int getWidth() {
+        return width;
+    }
+
+    // setHeight
+    public void setHeight(int height) {
+        this.height = height;
+    }
+
+    // getHeight
+    public int getHeight() {
+        return height;
+    }
+
 }
 class Item {
     private int x, y;
