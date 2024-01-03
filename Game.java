@@ -209,10 +209,14 @@ class TitleScreen extends Screen {
 
     public TitleScreen(Game game) {
         super(game);
+        Constants.isGameOver = false;
+        Constants.isGameClear = false;
         inputHandler = new InputHandler();
         game.addKeyListener(inputHandler);
     }
     public void update() {
+        Constants.isGameOver = false;
+        Constants.isGameClear = false;
         // タイトル画面の更新処理
         // 右矢印キーを押したらarrowを1増やす
         if (inputHandler.isRightPressed()) {
@@ -355,11 +359,29 @@ class StageScreen extends Screen {
                 displayGameOver--;
                 return;
             }
+            // spaceを押したらタイトル画面へ
+            if (inputHandler.isFirePressed()) {
+                game.screen = new TitleScreen(game);
+                game.setScreen(game.screen);
+                game.screen.setBackground(Color.BLACK);
+                game.getContentPane().add(game.screen);
+                // thisを破棄
+                game.remove(this);
+            }
         }
         if (Constants.isGameClear) {
             if (displayGameClear > 0) {
                 displayGameClear--;
                 return;
+            }
+            // spaceを押したらタイトル画面へ
+            if (inputHandler.isFirePressed()) {
+                game.screen = new TitleScreen(game);
+                game.setScreen(game.screen);
+                game.screen.setBackground(Color.BLACK);
+                game.getContentPane().add(game.screen);
+                // thisを破棄
+                game.remove(this);
             }
         }
         // ゲームの状態を更新
@@ -437,7 +459,7 @@ class StageScreen extends Screen {
         // 敵機のミサイルの発射
         // このメソッド内で敵機のミサイルの発射のロジックを実装
         enemies.forEach(enemy -> {
-            if (!enemy.isAlive()) {
+            if (!enemy.isAlive() || enemy.getBang() > 0) {
                 return;
             }
             // 一定の確率でミサイルを発射
@@ -445,6 +467,14 @@ class StageScreen extends Screen {
                 enemyMissiles.add(new EnemyMissile(enemy.getX() + imageLoader.getImageWidth(ImageKey.ENEMY1) / 2, enemy.getY() + imageLoader.getImageHeight(ImageKey.ENEMY1)));
             }
         });
+
+        // ボス機のミサイルの発射
+        // このメソッド内でボス機のミサイルの発射のロジックを実装
+        if (boss != null && boss.isAlive() && boss.getBang() == 0) {
+            if (Math.random() < 0.004) {
+                enemyMissiles.add(new EnemyMissile(boss.getX() + imageLoader.getImageWidth(ImageKey.BOSS1) / 2, boss.getY() + imageLoader.getImageHeight(ImageKey.BOSS1)));
+            }
+        }
 
         // 画面外に出た敵機のミサイルを削除
         enemyMissiles.removeIf(missile -> !missile.isVisible());
@@ -461,7 +491,7 @@ class StageScreen extends Screen {
         });
 
         // ボス機の移動
-        if (boss != null) {
+        if (boss != null && boss.isAlive() && boss.getBang() == 0) {
             boss.move();
         }
 
@@ -498,11 +528,6 @@ class StageScreen extends Screen {
         // 敵機が画面外に出たかどうかの判定
         enemies.removeIf(enemy -> enemy.getY() > Constants.SCREEN_HEIGHT);
 
-        // ボス機が画面外に出たかどうかの判定
-        if (boss != null && boss.getY() > Constants.SCREEN_HEIGHT) {
-            boss = null;
-        }
-
         // アイテムが画面外に出たかどうかの判定
         items.removeIf(item -> item.getY() > Constants.SCREEN_HEIGHT);
 
@@ -513,6 +538,8 @@ class StageScreen extends Screen {
         if (enemies.isEmpty()) {
             // ボス機の出現
             boss = new Boss(Constants.SCREEN_WIDTH / 2, 100, ImageKey.BOSS1);
+            boss.setHeight(imageLoader.getImageHeight(ImageKey.BOSS1));
+            boss.setWidth(imageLoader.getImageWidth(ImageKey.BOSS1));
         }
 
         // 自機がやられたかどうかの判定
@@ -522,7 +549,7 @@ class StageScreen extends Screen {
         }
 
         // ボス機がやられたかどうかの判定
-        if (boss != null && !boss.isAlive()) {
+        if (boss != null && !boss.isAlive() && boss.getBang() == 0) {
             // ゲームクリア画面へ
             // game.setScreen(new GameClearScreen(game));
             Constants.isGameClear = true;
@@ -575,13 +602,13 @@ class StageScreen extends Screen {
         if (Constants.isGameOver) {
             g.setColor(Color.WHITE);
             g.setFont(g.getFont().deriveFont(50f));
-            g.drawString("Game Over", 200, 200);
+            g.drawString("Game Over", 400, 400);
         }
 
         if (Constants.isGameClear) {
             g.setColor(Color.WHITE);
             g.setFont(g.getFont().deriveFont(50f));
-            g.drawString("Game Clear", 200, 200);
+            g.drawString("Game Clear", 400, 400);
         }
 
         Image playerImage = ((ImageIcon) imageLoader.getImage(ImageKey.PLAYER)).getImage();
@@ -607,9 +634,15 @@ class StageScreen extends Screen {
         });
 
         // ボス機の描画
-        if (boss != null) {
-            Image bossImage = ((ImageIcon) imageLoader.getImage(boss.getKey())).getImage();
-            g.drawImage(bossImage, boss.getX(), boss.getY(), this);
+        if (boss != null && boss.isAlive()) {
+            if (boss.getBang() > 0) {
+                Image bossBangImage = ((ImageIcon) imageLoader.getImage(ImageKey.BOSS_BANG)).getImage();
+                g.drawImage(bossBangImage, boss.getX(), boss.getY(), this);
+                boss.setBang(boss.getBang() - 1);
+            } else {
+                Image bossImage = ((ImageIcon) imageLoader.getImage(boss.getKey())).getImage();
+                g.drawImage(bossImage, boss.getX(), boss.getY(), this);
+            }
         }
 
         // ミサイルの描画
@@ -665,13 +698,6 @@ class StageScreen extends Screen {
             g.setColor(star.getColor());
             g.fillRect(star.getX(), star.getY(), 1, 1);
         });
-
-        // ゲームオーバー表示
-        if (Constants.isGameOver) {
-            g.setColor(Color.WHITE);
-            g.setFont(g.getFont().deriveFont(50f));
-            g.drawString("Game Over", 200, 200);
-        }
     }
 }
 class GameOverScreen extends Screen {
@@ -990,18 +1016,18 @@ class EnemyMissile {
     // 描画処理などその他のメソッド
 }
 
-class Boss extends Enemy {
+class Boss {
     private int x, y;
     private boolean alive = true;
     private int width;
     private int height;
     private int speed = 5;
+    private int life = 10;
     // bang
     private int bang = 0;
     ImageKey key;
 
     public Boss(int startX, int startY, ImageKey key) {
-        super(startX, startY, key);
         this.x = startX;
         this.y = startY;
         this.key = key;
@@ -1009,13 +1035,26 @@ class Boss extends Enemy {
 
     public void move() {
         // 敵機の動きのロジック
-
+        // 横向きの８の字を描くように移動
+        if (x < 0 || x > Constants.SCREEN_WIDTH - width) {
+            speed = -speed;
+        }
+        if (y < 0 || y > Constants.SCREEN_HEIGHT - height) {
+            speed = -speed;
+        }
+        x += speed;
+        y += speed;
     }
 
     public void hit() {
         // 敵機が攻撃を受けた時の処理
-        alive = false;
-        bang = 50;
+        if (life > 0) {
+            life--;
+        }
+        if (life == 0) {
+            alive = false;
+            bang = 150;
+        }
     }
 
     // 描画処理などその他のメソッド
@@ -1140,6 +1179,14 @@ class Missile {
         return false;
     }
 
+    // collidesWith
+    public boolean collidesWith(Boss boss) {
+        // ミサイルとボス機の当たり判定
+        if(x < boss.getX() + boss.getWidth() && x + width > boss.getX() && y < boss.getY() + boss.getHeight() && y + height > boss.getY()) {
+            return true;
+        }
+        return false;
+    }
     // 描画処理などその他のメソッド
 }
 class Item {
