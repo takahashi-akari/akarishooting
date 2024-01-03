@@ -121,7 +121,7 @@ class Constants {
 
 public class Game extends JFrame {
     private Timer timer;
-    private Screen screen;
+    public Screen screen;
 
 
     public Game() {
@@ -236,19 +236,30 @@ class TitleScreen extends Screen {
         // 星を移動
         stars.forEach(Star::move);
 
-        if (inputHandler.isFirePressed()) {
+        if (inputHandler.isFirePressed() && !this.isArrowPressed) {
             if (arrow == 0) {
                 // New Gameを選択したらステージ画面へ
-                game.setScreen(new StageScreen(game));
+                game.screen = new StageScreen(game);
+                game.setScreen(game.screen);
+                game.screen.setBackground(Color.BLACK);
+                game.getContentPane().add(game.screen);
+                // thisを破棄
+                game.remove(this);
             } else if (arrow == 1) {
                 // Score Rankingを選択したらハイスコア画面へ
-                game.setScreen(new HighScoreScreen(game));
+                game.screen = new HighScoreScreen(game);
+                game.setScreen(game.screen);
+                game.screen.setBackground(Color.BLACK);
+                game.getContentPane().add(game.screen);
+                // thisを破棄
+                game.remove(this);
             }
+            this.isArrowPressed = true;
         }
     }
     public void render() {
         // タイトル画面の描画処理
-        paint(getGraphics());
+        paint(game.getGraphics());
     }
 
     // paint
