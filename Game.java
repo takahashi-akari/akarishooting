@@ -1026,6 +1026,10 @@ class Boss {
     private int width;
     private int height;
     private int speed = 5;
+    // speedX
+    private int speedX = 5;
+    // speedY
+    private int speedY = 5;
     private int life = 10;
     // bang
     private int bang = 0;
@@ -1042,13 +1046,13 @@ class Boss {
         // 敵機の動きのロジック
         // 横向きの８の字を描くように移動
         if (x < 0 || x > Constants.SCREEN_WIDTH - width) {
-            speed = -speed;
+            speedX = -speedX;
         }
         if (y < 0 || y > Constants.SCREEN_HEIGHT - height - 150) {
-            speed = -speed;
+            speedY = -speedY;
         }
-        x += speed;
-        y += speed;
+        x += speedX;
+        y += speedY;
     }
 
     public void hit() {
