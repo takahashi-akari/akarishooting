@@ -900,7 +900,7 @@ class StageScreen extends Screen {
         // HISCORE
         g.setColor(Color.WHITE);
         g.setFont(g.getFont().deriveFont(30f));
-        g.drawString("HISCORE: " + scoreManager.getHighScore(), 400, 60);
+        g.drawString("HISCORE: " + scoreManager.getHighScore(), 300, 60);
 
         // 残り自機数の描画
         g.setColor(Color.WHITE);
