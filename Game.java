@@ -738,6 +738,8 @@ class StageScreen extends Screen {
             // ゲームオーバー
             Constants.isGameOver = true;
             Constants.stage = 1;
+            // ハイスコアの更新
+            Constants.scoreManager.updateHighScore();
         }
 
         // ボス機がやられたかどうかの判定
@@ -758,6 +760,8 @@ class StageScreen extends Screen {
                 game.remove(this);
             } else {
                 Constants.isGameClear = true;
+                // ハイスコアの更新
+                Constants.scoreManager.updateHighScore();
             }
         }
 
@@ -788,9 +792,6 @@ class StageScreen extends Screen {
 
         // 星の移動
         stars.forEach(Star::move);
-
-        // ハイスコアの更新
-        Constants.scoreManager.updateHighScore();
         // 他のオブジェクトの更新処理
     }
     public void render() {
@@ -1570,11 +1571,11 @@ class ScoreManager {
             highScores.set(1, highScores.get(0));
             highScores.set(0, score);
             saveHighScores();
-        } else if (score > highScores.get(1) && score < highScores.get(0)) {
+        } else if (score > highScores.get(1)) {
             highScores.set(2, highScores.get(1));
             highScores.set(1, score);
             saveHighScores();
-        } else if (score > highScores.get(2) && score < highScores.get(1)) {
+        } else if (score > highScores.get(2)) {
             highScores.set(2, score);
             saveHighScores();
         }
