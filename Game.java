@@ -119,6 +119,7 @@ class Constants {
     public static boolean missileStart = true;
     public static boolean isGameOver = false;
     public static boolean isGameClear = false;
+    public static int stage = 1;
 }
 
 public class Game extends JFrame {
@@ -550,6 +551,7 @@ class StageScreen extends Screen {
         if (!player.isAlive()) {
             // ゲームオーバー
             Constants.isGameOver = true;
+            Constants.stage = 1;
         }
 
         // ボス機がやられたかどうかの判定
@@ -599,7 +601,7 @@ class StageScreen extends Screen {
         if (displayStage > 0) {
             g.setColor(Color.WHITE);
             g.setFont(g.getFont().deriveFont(50f));
-            g.drawString("Stage 1", 400, 400);
+            g.drawString("Stage " + Constants.stage, 400, 400);
             return;
         }
 
@@ -655,7 +657,7 @@ class StageScreen extends Screen {
                 return;
             }
             Image missileImage = ((ImageIcon) imageLoader.getImage(ImageKey.PLAYER_MISSILE)).getImage();
-            g.drawImage(missileImage, missile.getX() + playerImage.getWidth(this) / 2 - missileImage.getWidth(this) / 2, missile.getY(), this);
+            g.drawImage(missileImage, missile.getX(), missile.getY(), this);
         });
 
         // 敵機のミサイルの描画
