@@ -736,10 +736,12 @@ class StageScreen extends Screen {
         // 自機がやられたかどうかの判定
         if (!player.isAlive()) {
             // ゲームオーバー
+            if (!Constants.isGameOver) {
+                // ハイスコアの更新
+                Constants.scoreManager.updateHighScore();
+            }
             Constants.isGameOver = true;
             Constants.stage = 1;
-            // ハイスコアの更新
-            Constants.scoreManager.updateHighScore();
         }
 
         // ボス機がやられたかどうかの判定
@@ -759,9 +761,11 @@ class StageScreen extends Screen {
                 // thisを破棄
                 game.remove(this);
             } else {
+                if (!Constants.isGameClear) {
+                    // ハイスコアの更新
+                    Constants.scoreManager.updateHighScore();
+                }
                 Constants.isGameClear = true;
-                // ハイスコアの更新
-                Constants.scoreManager.updateHighScore();
             }
         }
 
