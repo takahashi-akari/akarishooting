@@ -17,6 +17,11 @@ import javax.swing.Timer;
 import java.awt.Image;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.List;
 import java.util.ArrayList;
 import javax.swing.ImageIcon;
@@ -694,6 +699,11 @@ class StageScreen extends Screen {
         g.setFont(g.getFont().deriveFont(30f));
         g.drawString("SCORE: " + scoreManager.getScore(), 700, 60);
 
+        // HISCORE
+        g.setColor(Color.WHITE);
+        g.setFont(g.getFont().deriveFont(30f));
+        g.drawString("HISCORE: " + scoreManager.getHighScore(), 400, 60);
+
         // 残り自機数の描画
         g.setColor(Color.WHITE);
         g.setFont(g.getFont().deriveFont(30f));
@@ -725,11 +735,24 @@ class GameClearScreen extends Screen {
     }
 }
 class HighScoreScreen extends Screen {
+    ScoreManager scoreManager = new ScoreManager();
+    InputHandler inputHandler;
+
     public HighScoreScreen(Game game) {
         super(game);
+        inputHandler = new InputHandler();
+        game.addKeyListener(inputHandler);
     }
     public void update() {
-
+        // スペースキーを押したらタイトル画面へ
+        if (inputHandler.isFirePressed()) {
+            game.screen = new TitleScreen(game);
+            game.setScreen(game.screen);
+            game.screen.setBackground(Color.BLACK);
+            game.getContentPane().add(game.screen);
+            // thisを破棄
+            game.remove(this);
+        }
     }
     public void render() {
         paint(game.getGraphics());
@@ -747,7 +770,14 @@ class HighScoreScreen extends Screen {
         // タイトルを白文字で表示
         g.setColor(Color.WHITE);
         g.setFont(g.getFont().deriveFont(50f));
-        g.drawString("High Score", 200, 200);
+        g.drawString("High Score", 400, 300);
+
+        // 　ハイスコアを表示
+        g.setColor(Color.WHITE);
+        g.setFont(g.getFont().deriveFont(30f));
+        g.drawString("1st: " + scoreManager.getHighScores().get(0), 400, 400);
+        g.drawString("2nd: " + scoreManager.getHighScores().get(1), 400, 450);
+        g.drawString("3rd: " + scoreManager.getHighScores().get(2), 400, 500);
     }
 }
 class Player {
@@ -1311,11 +1341,19 @@ enum ItemType {
 }
 
 class ScoreManager {
+    // score.datは3行のテキストファイル
+    private String fileName = "score.dat";
     private int score = 0;
     private List<Integer> highScores = new ArrayList<>();
 
     public ScoreManager() {
         // ハイスコアの読み込み処理
+        loadHighScores();
+    }
+
+    public int getHighScore() {
+        // ハイスコアを文字列で返す
+        return highScores.get(0);
     }
 
     public void addScore(int value) {
@@ -1324,16 +1362,84 @@ class ScoreManager {
 
     public void checkHighScore() {
         // 現在のスコアがハイスコアかどうか確認し、必要に応じて更新
+        if (score > highScores.get(0)) {
+            highScores.set(2, highScores.get(1));
+            highScores.set(1, highScores.get(0));
+            highScores.set(0, score);
+        } else if (score > highScores.get(1)) {
+            highScores.set(2, highScores.get(1));
+            highScores.set(1, score);
+        } else if (score > highScores.get(2)) {
+            highScores.set(2, score);
+        }
     }
 
     public void saveHighScores() {
         // ハイスコアをファイルに保存
+        // ファイルがなかったら作る
+        File file = new File(fileName);
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+                FileWriter fileWriter = new FileWriter(file);
+                fileWriter.write("0\n0\n0");
+                fileWriter.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            try {
+                FileWriter fileWriter = new FileWriter(file);
+                for (int i = 0; i < highScores.size(); i++) {
+                    fileWriter.write(highScores.get(i) + "\n");
+                }
+                fileWriter.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void loadHighScores() {
+        // ハイスコアをファイルから読み込み
+        // ファイルがなかったら作る
+        File file = new File(fileName);
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+                FileWriter fileWriter = new FileWriter(file);
+                fileWriter.write("0\n0\n0");
+                fileWriter.close();
+                highScores.add(0);
+                highScores.add(0);
+                highScores.add(0);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            try {
+                FileReader fileReader = new FileReader(file);
+                BufferedReader bufferedReader = new BufferedReader(fileReader);
+                String line;
+                while ((line = bufferedReader.readLine()) != null) {
+                    highScores.add(Integer.parseInt(line));
+                }
+                bufferedReader.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     // ハイスコアの取得や表示に関連するメソッド
     // getScore
     public int getScore() {
         return score;
+    }
+
+    // getHighScores
+    public List<Integer> getHighScores() {
+        return highScores;
     }
 }
 
