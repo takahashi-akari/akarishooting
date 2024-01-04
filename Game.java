@@ -329,20 +329,115 @@ class StageScreen extends Screen {
         game.addKeyListener(inputHandler);
 
         // 敵機の初期化
-        for (int i = 0; i < 7; i++) {
-            for (int j = 0; j < 3; j++) {
-                ImageKey key = null;
-                if (j == 0) {
-                    key = ImageKey.ENEMY1;
-                } else if (j == 1) {
-                    key = ImageKey.ENEMY2;
-                } else if (j == 2) {
-                    key = ImageKey.ENEMY3;
+        switch (Constants.stage) {
+            case 1:
+            for (int i = 0; i < 6; i++) {
+                for (int j = 0; j < 2; j++) {
+                    ImageKey key = null;
+                    if (j == 0) {
+                        key = ImageKey.ENEMY1;
+                    } else if (j == 1) {
+                        key = ImageKey.ENEMY2;
+                    }
+                    Enemy enemy = new Enemy(100 + i * 100, 100 + j * 100, key);
+                    enemy.setWidth(imageLoader.getImageWidth(key));
+                    enemy.setHeight(imageLoader.getImageHeight(key));
+                    enemies.add(enemy);
                 }
-                Enemy enemy = new Enemy(100 + i * 100, 100 + j * 100, key);
-                enemy.setWidth(imageLoader.getImageWidth(key));
-                enemy.setHeight(imageLoader.getImageHeight(key));
-                enemies.add(enemy);
+            }
+            break;
+            case 2:
+            for (int i = 0; i < 7; i++) {
+                for (int j = 0; j < 2; j++) {
+                    ImageKey key = null;
+                    if (j == 0) {
+                        key = ImageKey.ENEMY3;
+                    } else if (j == 1) {
+                        key = ImageKey.ENEMY4;
+                    }
+                    Enemy enemy = new Enemy(100 + i * 100, 100 + j * 100, key);
+                    enemy.setWidth(imageLoader.getImageWidth(key));
+                    enemy.setHeight(imageLoader.getImageHeight(key));
+                    enemies.add(enemy);
+                }
+            }
+            break;
+            case 3:
+            for (int i = 0; i < 7; i++) {
+                for (int j = 0; j < 3; j++) {
+                    ImageKey key = null;
+                    if (j == 0) {
+                        key = ImageKey.ENEMY5;
+                    } else if (j == 1) {
+                        key = ImageKey.ENEMY6;
+                    } else if (j == 2) {
+                        key = ImageKey.ENEMY7;
+                    }
+                    Enemy enemy = new Enemy(100 + i * 100, 100 + j * 100, key);
+                    enemy.setWidth(imageLoader.getImageWidth(key));
+                    enemy.setHeight(imageLoader.getImageHeight(key));
+                    enemies.add(enemy);
+                }
+            }
+            break;
+            case 4:
+            for (int i = 0; i < 8; i++) {
+                for (int j = 0; j < 3; j++) {
+                    ImageKey key = null;
+                    if (j == 0) {
+                        key = ImageKey.ENEMY8;
+                    } else if (j == 1) {
+                        key = ImageKey.ENEMY9;
+                    } else if (j == 2) {
+                        key = ImageKey.ENEMY10;
+                    }
+                    Enemy enemy = new Enemy(90 + i * 90, 90 + j * 90, key);
+                    enemy.setWidth(imageLoader.getImageWidth(key));
+                    enemy.setHeight(imageLoader.getImageHeight(key));
+                    enemies.add(enemy);
+                }
+            }
+            break;
+            case 5:
+            for (int i = 0; i < 8; i++) {
+                for (int j = 0; j < 4; j++) {
+                    ImageKey key = null;
+                    if (j == 0) {
+                        key = ImageKey.ENEMY11;
+                    } else if (j == 1) {
+                        key = ImageKey.ENEMY8;
+                    } else if (j == 2) {
+                        key = ImageKey.ENEMY9;
+                    } else if (j == 3) {
+                        key = ImageKey.ENEMY10;
+                    }
+                    Enemy enemy = new Enemy(90 + i * 90, 90 + j * 90, key);
+                    enemy.setWidth(imageLoader.getImageWidth(key));
+                    enemy.setHeight(imageLoader.getImageHeight(key));
+                    enemies.add(enemy);
+                }
+            }
+            break;
+            case 6:
+            for (int i = 0; i < 8; i++) {
+                for (int j = 0; j < 5; j++) {
+                    ImageKey key = null;
+                    if (j == 0) {
+                        key = ImageKey.ENEMY11;
+                    } else if (j == 1) {
+                        key = ImageKey.ENEMY8;
+                    } else if (j == 2) {
+                        key = ImageKey.ENEMY9;
+                    } else if (j == 3) {
+                        key = ImageKey.ENEMY10;
+                    } else if (j == 4) {
+                        key = ImageKey.ENEMY11;
+                    }
+                    Enemy enemy = new Enemy(90 + i * 90, 90 + j * 90, key);
+                    enemy.setWidth(imageLoader.getImageWidth(key));
+                    enemy.setHeight(imageLoader.getImageHeight(key));
+                    enemies.add(enemy);
+                }
             }
         }
 
@@ -471,8 +566,29 @@ class StageScreen extends Screen {
             if (!enemy.isAlive() || enemy.getBang() > 0) {
                 return;
             }
+            double percentange = 0.004;
+            switch (Constants.stage) {
+                case 1:
+                    percentange = 0.003;
+                    break;
+                case 2:
+                    percentange = 0.0035;
+                    break;
+                case 3:
+                    percentange = 0.0040;
+                    break;
+                case 4:
+                    percentange = 0.0045;
+                    break;
+                case 5:
+                    percentange = 0.0050;
+                    break;
+                case 6:
+                    percentange = 0.0055;
+                    break;
+            }
             // 一定の確率でミサイルを発射
-            if (Math.random() < 0.004) {
+            if (Math.random() < percentange) {
                 enemyMissiles.add(new EnemyMissile(enemy.getX() + imageLoader.getImageWidth(ImageKey.ENEMY1) / 2, enemy.getY() + imageLoader.getImageHeight(ImageKey.ENEMY1)));
             }
         });
@@ -480,8 +596,50 @@ class StageScreen extends Screen {
         // ボス機のミサイルの発射
         // このメソッド内でボス機のミサイルの発射のロジックを実装
         if (boss != null && boss.isAlive() && boss.getBang() == 0) {
-            if (Math.random() < 0.004) {
-                enemyMissiles.add(new EnemyMissile(boss.getX() + imageLoader.getImageWidth(ImageKey.BOSS1) / 2, boss.getY() + imageLoader.getImageHeight(ImageKey.BOSS1)));
+            double percentange = 0.004;
+            switch (Constants.stage) {
+                case 1:
+                    percentange = 0.003;
+                    break;
+                case 2:
+                    percentange = 0.0035;
+                    break;
+                case 3:
+                    percentange = 0.0040;
+                    break;
+                case 4:
+                    percentange = 0.0045;
+                    break;
+                case 5:
+                    percentange = 0.0050;
+                    break;
+                case 6:
+                    percentange = 0.0055;
+                    break;
+            }
+            ImageKey key = null;
+            switch(Constants.stage) {
+                case 1:
+                    key = ImageKey.BOSS1;
+                    break;
+                case 2:
+                    key = ImageKey.BOSS2;
+                    break;
+                case 3:
+                    key = ImageKey.BOSS3;
+                    break;
+                case 4:
+                    key = ImageKey.BOSS4;
+                    break;
+                case 5:
+                    key = ImageKey.BOSS5;
+                    break;
+                case 6:
+                    key = ImageKey.BOSS6;
+                    break;
+            }
+            if (Math.random() < percentange) {
+                enemyMissiles.add(new EnemyMissile(boss.getX() + imageLoader.getImageWidth(key) / 2, boss.getY() + imageLoader.getImageHeight(key)));
             }
         }
 
@@ -546,10 +704,31 @@ class StageScreen extends Screen {
         // 敵機が全滅したかどうかの判定
         if (enemies.isEmpty() && boss == null) {
             // ボス機の出現
-            boss = new Boss(Constants.SCREEN_WIDTH / 2, 150, ImageKey.BOSS1);
-            boss.setX(Constants.SCREEN_WIDTH / 2 - imageLoader.getImageWidth(ImageKey.BOSS1) / 2);
-            boss.setHeight(imageLoader.getImageHeight(ImageKey.BOSS1));
-            boss.setWidth(imageLoader.getImageWidth(ImageKey.BOSS1));
+            ImageKey key = null;
+            switch(Constants.stage) {
+                case 1:
+                    key = ImageKey.BOSS1;
+                    break;
+                case 2:
+                    key = ImageKey.BOSS2;
+                    break;
+                case 3:
+                    key = ImageKey.BOSS3;
+                    break;
+                case 4:
+                    key = ImageKey.BOSS4;
+                    break;
+                case 5:
+                    key = ImageKey.BOSS5;
+                    break;
+                case 6:
+                    key = ImageKey.BOSS6;
+                    break;
+            }
+            boss = new Boss(Constants.SCREEN_WIDTH / 2, 150, key);
+            boss.setX(Constants.SCREEN_WIDTH / 2 - imageLoader.getImageWidth(key) / 2);
+            boss.setHeight(imageLoader.getImageHeight(key));
+            boss.setWidth(imageLoader.getImageWidth(key));
         }
 
         // 自機がやられたかどうかの判定
@@ -563,7 +742,19 @@ class StageScreen extends Screen {
         if (boss != null && !boss.isAlive() && boss.getBang() == 0) {
             // ゲームクリア画面へ
             // game.setScreen(new GameClearScreen(game));
-            Constants.isGameClear = true;
+            if (Constants.stage < 6) {
+                Constants.stage++;
+
+                // ステージ画面へ
+                game.screen = new StageScreen(game);
+                game.setScreen(game.screen);
+                game.screen.setBackground(Color.BLACK);
+                game.getContentPane().add(game.screen);
+                // thisを破棄
+                game.remove(this);
+            } else {
+                Constants.isGameClear = true;
+            }
         }
 
         // アイテムが自機に当たったかどうかの判定
