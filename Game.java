@@ -125,6 +125,7 @@ class Constants {
     public static boolean isGameOver = false;
     public static boolean isGameClear = false;
     public static int stage = 1;
+    public static ScoreManager scoreManager = new ScoreManager();fT
 }
 
 public class Game extends JFrame {
@@ -217,6 +218,7 @@ class TitleScreen extends Screen {
         super(game);
         Constants.isGameOver = false;
         Constants.isGameClear = false;
+        Constants.scoreManager = new ScoreManager();
         inputHandler = new InputHandler();
         game.addKeyListener(inputHandler);
     }
@@ -309,7 +311,6 @@ class StageScreen extends Screen {
     List<Missile> missiles = new ArrayList<>();
     List<Item> items = new ArrayList<>();
     Boss boss;
-    ScoreManager scoreManager;
     ImageLoader imageLoader;
     InputHandler inputHandler;
     List<EnemyMissile> enemyMissiles = new ArrayList<>();
@@ -320,7 +321,6 @@ class StageScreen extends Screen {
 
     public StageScreen(Game game) {
         super(game);
-        scoreManager = new ScoreManager();
         imageLoader = new ImageLoader();
         inputHandler = new InputHandler();
         player = new Player(Constants.SCREEN_WIDTH / 2, Constants.SCREEN_HEIGHT - imageLoader.getImageHeight(ImageKey.PLAYER) - 10);
@@ -669,14 +669,14 @@ class StageScreen extends Screen {
                     missile.hit();
                     enemy.hit();
                     int time2 = (int) System.currentTimeMillis() - time;
-                    scoreManager.addScore(1000 - time2 / 100);
+                    Constants.scoreManager.addScore(1000 - time2 / 100);
                 }
             });
             if (boss != null && missile.collidesWith(boss)) {
                 missile.hit();
                 boss.hit();
                 int time2 = (int) System.currentTimeMillis() - time;
-                scoreManager.addScore(1000 - time2 / 100);
+                Constants.scoreManager.addScore(1000 - time2 / 100);
             }
         });
 
@@ -746,7 +746,7 @@ class StageScreen extends Screen {
             // game.setScreen(new GameClearScreen(game));
             if (Constants.stage < 6) {
                 int time2 = (int) System.currentTimeMillis() - time;
-                scoreManager.addScore(6000 - time2 / 100);
+                Constants.scoreManager.addScore(6000 - time2 / 100);
                 Constants.stage++;
 
                 // ステージ画面へ
@@ -770,7 +770,7 @@ class StageScreen extends Screen {
             if (player.collidesWith(item)) {
                 switch(item.getType()) {
                     case SCORE_UP:
-                        scoreManager.addScore(1000);
+                        Constants.scoreManager.addScore(2000);
                         break;
                     case LIFE_UP:
                         player.setLife(player.getLife() + 1);
@@ -790,7 +790,7 @@ class StageScreen extends Screen {
         stars.forEach(Star::move);
 
         // ハイスコアの更新
-        scoreManager.updateHighScore();
+        Constants.scoreManager.updateHighScore();
         // 他のオブジェクトの更新処理
     }
     public void render() {
@@ -895,12 +895,12 @@ class StageScreen extends Screen {
 
         g.setColor(Color.WHITE);
         g.setFont(g.getFont().deriveFont(30f));
-        g.drawString("SCORE: " + scoreManager.getScore(), 700, 60);
+        g.drawString("SCORE: " + Constants.scoreManager.getScore(), 700, 60);
 
         // HISCORE
         g.setColor(Color.WHITE);
         g.setFont(g.getFont().deriveFont(30f));
-        g.drawString("HISCORE: " + scoreManager.getHighScore(), 300, 60);
+        g.drawString("HISCORE: " + Constants.scoreManager.getHighScore(), 300, 60);
 
         // 残り自機数の描画
         g.setColor(Color.WHITE);
@@ -1570,11 +1570,11 @@ class ScoreManager {
             highScores.set(1, highScores.get(0));
             highScores.set(0, score);
             saveHighScores();
-        } else if (score > highScores.get(1)) {
+        } else if (score > highScores.get(1) && score < highScores.get(0)) {
             highScores.set(2, highScores.get(1));
             highScores.set(1, score);
             saveHighScores();
-        } else if (score > highScores.get(2)) {
+        } else if (score > highScores.get(2) && score < highScores.get(1)) {
             highScores.set(2, score);
             saveHighScores();
         }
