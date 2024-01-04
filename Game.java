@@ -675,6 +675,8 @@ class StageScreen extends Screen {
             if (boss != null && missile.collidesWith(boss)) {
                 missile.hit();
                 boss.hit();
+                int time2 = (int) System.currentTimeMillis() - time;
+                scoreManager.addScore(1000 - time2 / 100);
             }
         });
 
@@ -743,6 +745,8 @@ class StageScreen extends Screen {
             // ゲームクリア画面へ
             // game.setScreen(new GameClearScreen(game));
             if (Constants.stage < 6) {
+                int time2 = (int) System.currentTimeMillis() - time;
+                scoreManager.addScore(6000 - time2 / 100);
                 Constants.stage++;
 
                 // ステージ画面へ
@@ -755,7 +759,7 @@ class StageScreen extends Screen {
             } else {
                 Constants.isGameClear = true;
             }
-        }
+
 
         // アイテムが自機に当たったかどうかの判定
         items.forEach(item -> {
@@ -784,6 +788,8 @@ class StageScreen extends Screen {
         // 星の移動
         stars.forEach(Star::move);
 
+        // ハイスコアの更新
+        scoreManager.updateHighScore();
         // 他のオブジェクトの更新処理
     }
     public void render() {
@@ -1542,6 +1548,11 @@ class ScoreManager {
         loadHighScores();
     }
 
+    public void updateHighScore() {
+        // ハイスコアの更新処理
+        checkHighScore();
+    }
+
     public int getHighScore() {
         // ハイスコアを文字列で返す
         return highScores.get(0);
@@ -1557,11 +1568,14 @@ class ScoreManager {
             highScores.set(2, highScores.get(1));
             highScores.set(1, highScores.get(0));
             highScores.set(0, score);
+            saveHighScores();
         } else if (score > highScores.get(1)) {
             highScores.set(2, highScores.get(1));
             highScores.set(1, score);
+            saveHighScores();
         } else if (score > highScores.get(2)) {
             highScores.set(2, score);
+            saveHighScores();
         }
     }
 
