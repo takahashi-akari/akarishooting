@@ -125,7 +125,7 @@ class Constants {
     public static boolean isGameOver = false;
     public static boolean isGameClear = false;
     public static int stage = 1;
-    public static ScoreManager scoreManager = new ScoreManager();fT
+    public static ScoreManager scoreManager = new ScoreManager();
 }
 
 public class Game extends JFrame {
