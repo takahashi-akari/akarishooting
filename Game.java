@@ -759,6 +759,7 @@ class StageScreen extends Screen {
             } else {
                 Constants.isGameClear = true;
             }
+        }
 
 
         // アイテムが自機に当たったかどうかの判定
